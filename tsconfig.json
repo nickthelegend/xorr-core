@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "target": "ES6",
+    "skipLibCheck": true,
+    "strict": false,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    // MIGRATED Algorand → Sui. These dead Algorand artifacts import algosdk /
+    // @algorandfoundation/algokit-utils, which are no longer installed. They have
+    // NO Sui analog and no app importers, so they are excluded from the app
+    // typecheck. TODO(xorr): delete them.
+    "clients/MainSmartContract.ts",
+    "scripts/deploy-contracts.ts",
+    "tests/contract.test.ts"
+  ]
+}

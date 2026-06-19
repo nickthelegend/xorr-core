@@ -6,11 +6,11 @@ import { SuiJsonRpcClient } from "@mysten/sui/jsonRpc";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { Transaction } from "@mysten/sui/transactions";
 
-const PKG = "0x9572997e5d494f961fc9b2260b8c085a1b20b16bd1495f3972b7dfda0ff11a40";
-const ORACLE = "0x7ff16c140cd7ffaa253a8204d9013f51393c3cf90fc4f75e4e2d42ab82f86606";
-const POOL = "0x64a3efc2629084d75c168a1140c0b5feeb167ad5b1ae19ccd2214a3b332e8661";
+const PKG = "0xa105190b2218938815920010957f7adf856940452e304a63e195e132f14713b9";
+const ORACLE = "0xe4cf3ea3060adab8a42406a7344471eb76002e93c5bb14578e35c578223b7e88";
+const POOL = "0x2763f2907909d2aade0224bad144d4497df741d01c500d781c7abd2331cb9993";
 const ENCLAVE = "http://98.81.188.34:3000/process_data";
-const T = `${PKG}::usdt::USDT`;
+const T = `${PKG}::usdc::USDC`;
 const M = 1_000_000;
 
 const client = new SuiJsonRpcClient({ url: "https://fullnode.testnet.sui.io:443", network: "testnet" });
@@ -52,10 +52,10 @@ async function run(label, build) {
   });
   const o = await client.getObject({ id: profile, options: { showContent: true } });
   const f = o.data.content.fields;
-  console.log(`profile after attestation: score=${f.score} credit_limit=${Number(f.credit_limit) / M} USDT`);
+  console.log(`profile after attestation: score=${f.score} credit_limit=${Number(f.credit_limit) / M} USDC`);
 
   // 4. under-collateralized borrow now unlocks (score >= 600, amount <= line)
-  await run("borrow_uncollateralized 50 USDT (no collateral)", (tx) => {
+  await run("borrow_uncollateralized 50 USDC (no collateral)", (tx) => {
     const coin = tx.moveCall({ target: `${PKG}::market::borrow_uncollateralized`, typeArguments: [T], arguments: [tx.object(POOL), tx.object(profile), tx.pure.u64(50 * M), tx.pure.u64(BigInt(30))] });
     tx.transferObjects([coin], me);
   });

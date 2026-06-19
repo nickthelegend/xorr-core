@@ -39,9 +39,9 @@ export default function FaucetPage() {
     try {
       const raw = BigInt(Math.floor(parsed * 10 ** USDT_DECIMALS))
       const tx = new Transaction()
-      // usdt::faucet_mint(faucet, amount) -> Coin<USDT>, then send to recipient.
+      // usdc::faucet_mint(faucet, amount) -> Coin<USDT>, then send to recipient.
       const [coin] = tx.moveCall({
-        target: `${USDT_PACKAGE_ID}::usdt::faucet_mint`,
+        target: `${USDT_PACKAGE_ID}::usdc::faucet_mint`,
         arguments: [tx.object(USDT_FAUCET_ID), tx.pure.u64(raw)],
       })
       tx.transferObjects([coin], tx.pure.address(effectiveRecipient))
@@ -144,7 +144,7 @@ export default function FaucetPage() {
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/50">How_It_Works</span>
             </div>
             <div className="space-y-2 text-[11px] text-foreground/40 leading-relaxed font-mono">
-              <p className="text-foreground/60">Calls usdt::faucet_mint on the shared Faucet object.</p>
+              <p className="text-foreground/60">Calls usdc::faucet_mint on the shared Faucet object.</p>
               <p>The mint transaction is signed by your connected Sui wallet (gas paid in SUI).</p>
               <p className="mt-3">Network: <span className="text-primary/60">Sui {SUI_NETWORK}</span></p>
               <p>Status: <span className="text-primary/60">{CONFIGURED ? "LIVE" : "AWAITING_CONFIG"}</span></p>

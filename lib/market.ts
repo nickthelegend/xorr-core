@@ -6,7 +6,7 @@ import { USDT_PACKAGE_ID, USDT_DECIMALS } from "./sui";
 import { BNPL_POOL_ID } from "./bnpl";
 
 const PKG = USDT_PACKAGE_ID;
-const T = `${PKG}::usdt::USDT`;
+const T = `${PKG}::usdc::USDC`;
 const SCALE = 10 ** USDT_DECIMALS;
 const u64 = (usdt: number) => BigInt(Math.floor(usdt * SCALE));
 const TERM_EPOCHS = BigInt(30);

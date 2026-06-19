@@ -6,22 +6,22 @@ import type { SuiJsonRpcClient } from "@mysten/sui/jsonRpc";
 import { USDT_PACKAGE_ID, USDT_FAUCET_ID, USDT_DECIMALS } from "./sui";
 
 const PKG = USDT_PACKAGE_ID;
-const T = `${PKG}::usdt::USDT`;
+const T = `${PKG}::usdc::USDC`;
 const SCALE = 10 ** USDT_DECIMALS;
 
 // Canonical, pre-funded demo objects (override via env). The pool already has
 // supplied liquidity so purchases can be fronted immediately.
 export const BNPL_POOL_ID =
-  process.env.NEXT_PUBLIC_BNPL_POOL_ID ?? "0x64a3efc2629084d75c168a1140c0b5feeb167ad5b1ae19ccd2214a3b332e8661";
+  process.env.NEXT_PUBLIC_BNPL_POOL_ID ?? "0x2763f2907909d2aade0224bad144d4497df741d01c500d781c7abd2331cb9993";
 export const BNPL_ESCROW_ID =
-  process.env.NEXT_PUBLIC_BNPL_ESCROW_ID ?? "0x74b6e2bc6b0e6f2aa43905b5968d29f6fac10fa53835a6dea2d328d076dd11b6";
+  process.env.NEXT_PUBLIC_BNPL_ESCROW_ID ?? "0x44945bd13ef548fd3beb77c6d111bdfd88e549a3650a9caa7213d527d4e59c0c";
 
 const u64 = (usdt: number) => BigInt(Math.floor(usdt * SCALE));
 
 /** Mint test USDT straight to the connected wallet (capped by the Move faucet). */
 export function faucetTx(amountUsdt: number): Transaction {
   const tx = new Transaction();
-  tx.moveCall({ target: `${PKG}::usdt::faucet_to_sender`, arguments: [tx.object(USDT_FAUCET_ID), tx.pure.u64(u64(amountUsdt))] });
+  tx.moveCall({ target: `${PKG}::usdc::faucet_to_sender`, arguments: [tx.object(USDT_FAUCET_ID), tx.pure.u64(u64(amountUsdt))] });
   return tx;
 }
 

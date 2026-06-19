@@ -147,7 +147,7 @@ export default function LendBorrowPage() {
     <div className="flex-1 flex flex-col py-8 gap-8 w-full font-mono text-white">
       <div className="flex flex-col gap-2">
         <span className="text-[10px] tracking-[0.4em] text-primary/60 uppercase">XORR // Lend_Borrow_Market</span>
-        <h1 className="text-3xl md:text-5xl tracking-tighter font-black uppercase italic">Money_Market</h1>
+        <h1 className="text-3xl md:text-5xl tracking-tighter font-black uppercase">Money_Market</h1>
       </div>
 
       {/* top stats */}

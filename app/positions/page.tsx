@@ -68,7 +68,7 @@ export default function PositionsPage() {
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] tracking-[0.4em] text-primary/60 uppercase">XORR // On_Chain_Positions · sui_{SUI_NETWORK}</span>
-          <h1 className="text-3xl tracking-tighter font-black uppercase italic">Your Positions</h1>
+          <h1 className="text-3xl tracking-tighter font-black uppercase">Your Positions</h1>
         </div>
         <button onClick={refresh} disabled={loading || !account}
           className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-5 py-2.5 text-[10px] uppercase tracking-widest font-bold transition-all disabled:opacity-40">

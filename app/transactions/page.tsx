@@ -84,7 +84,7 @@ export default function TransactionsPage() {
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-2">
           <span className="font-mono text-[10px] tracking-[0.4em] text-primary/60 uppercase">XORR // Activity · sui_{SUI_NETWORK}</span>
-          <h1 className="text-white text-3xl tracking-tighter font-black uppercase italic">Transaction History</h1>
+          <h1 className="text-white text-3xl tracking-tighter font-black uppercase">Transaction History</h1>
         </div>
         <button onClick={refresh} disabled={loading || !account}
           className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-5 py-2.5 text-[10px] uppercase tracking-widest font-bold transition-all disabled:opacity-40">
@@ -127,7 +127,7 @@ export default function TransactionsPage() {
                   <div>
                     <div className="flex items-center gap-3">
                       <span className="text-white font-bold text-lg tracking-tight">{t.kind}</span>
-                      <span className={`text-[9px] px-2 py-0.5 rounded border font-black tracking-widest uppercase italic ${t.status === "success" ? "bg-primary/10 text-primary border-primary/20" : t.status === "failure" ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-white/5 text-foreground/40 border-border/20"}`}>
+                      <span className={`text-[9px] px-2 py-0.5 rounded border font-black tracking-widest uppercase ${t.status === "success" ? "bg-primary/10 text-primary border-primary/20" : t.status === "failure" ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-white/5 text-foreground/40 border-border/20"}`}>
                         {t.status}
                       </span>
                     </div>

@@ -6,6 +6,7 @@ const TOKEN_LOGOS: Record<string, string> = {
   BTC:   "/tokens/bitcoin-btc-logo.svg",
   WBTC:  "/tokens/bitcoin-btc-logo.svg",
   USDC:  "/tokens/usd-coin-usdc-logo.svg",
+  DUSDC: "/tokens/usd-coin-usdc-logo.svg",
   USDT:  "/tokens/tether-usdt-logo.svg",
   BNB:   "/tokens/bnb-bnb-logo.svg",
 }

@@ -143,7 +143,7 @@ export default function BnplPage() {
     <div className="flex-1 flex flex-col py-8 gap-8 w-full font-mono text-white">
       <div className="flex flex-col gap-2">
         <span className="text-[10px] tracking-[0.4em] text-primary/60 uppercase">XORR // Buy_Now_Pay_Never</span>
-        <h1 className="text-3xl md:text-5xl tracking-tighter font-black uppercase italic">Credit &amp; Repayment</h1>
+        <h1 className="text-3xl md:text-5xl tracking-tighter font-black uppercase">Credit &amp; Repayment</h1>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

@@ -19,7 +19,7 @@ export default function PoolPairPage({ params }: { params: Promise<{ pair: strin
         <div className="flex items-center gap-3">
           <TokenIcon symbol={symbol} size={36} className="flex-shrink-0" />
           <div className="text-left">
-            <h1 className="text-2xl font-black uppercase tracking-tighter italic">{symbol} Pool</h1>
+            <h1 className="text-2xl font-black uppercase tracking-tighter">{symbol} Pool</h1>
             <p className="text-[10px] text-foreground/40 uppercase tracking-widest">XORR Money Market</p>
           </div>
         </div>

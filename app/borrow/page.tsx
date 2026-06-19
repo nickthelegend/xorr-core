@@ -79,7 +79,7 @@ export default function BorrowPage() {
     <div className="flex-1 flex flex-col py-8 gap-8 w-full font-mono text-white">
       <div className="flex flex-col gap-2">
         <span className="font-mono text-[10px] tracking-[0.4em] text-primary/60 uppercase">XORR // Borrow · sui_{SUI_NETWORK}</span>
-        <h1 className="text-white text-3xl tracking-tighter font-black uppercase italic">Execute Borrow</h1>
+        <h1 className="text-white text-3xl tracking-tighter font-black uppercase">Execute Borrow</h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -163,7 +163,7 @@ export default function BorrowPage() {
               <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Full_Money_Market</h3>
               <ChevronRight size={16} className="text-primary group-hover:translate-x-1 transition-transform" />
             </div>
-            <p className="text-[11px] text-foreground/60 leading-relaxed italic">
+            <p className="text-[11px] text-foreground/60 leading-relaxed">
               Supply liquidity, manage collateral, repay, and access unsecured TEE-backed credit lines.
             </p>
           </Link>

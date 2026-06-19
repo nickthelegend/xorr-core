@@ -1,38 +1,45 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://pay-ease-ruby.vercel.app'
-  
+  const baseUrl = "https://app.xorr.finance";
+  const lastModified = "2026-06-19T00:00:00.000Z";
+
   return [
     {
       url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1,
+      lastModified,
+      changeFrequency: "daily",
+      priority: 1.0,
     },
     {
-      url: `${baseUrl}/limits`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
+      url: `${baseUrl}/bnpl`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/lend-borrow`,
+      lastModified,
+      changeFrequency: "weekly",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/checkout`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
+      url: `${baseUrl}/credit`,
+      lastModified,
+      changeFrequency: "weekly",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/transactions`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
+      url: `${baseUrl}/faucet`,
+      lastModified,
+      changeFrequency: "weekly",
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/settings`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
+      url: `${baseUrl}/pools`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.7,
     },
-  ]
+  ];
 }

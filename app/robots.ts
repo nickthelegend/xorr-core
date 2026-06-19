@@ -1,11 +1,15 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-    },
-    sitemap: 'https://pay-ease-ruby.vercel.app/sitemap.xml',
-  }
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/api/", "/pay/", "/positions", "/transactions"],
+      },
+    ],
+    sitemap: "https://app.xorr.finance/sitemap.xml",
+    host: "https://app.xorr.finance",
+  };
 }

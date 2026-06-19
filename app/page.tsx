@@ -83,8 +83,19 @@ export default function Page() {
                 Buy Now,<br /><span className="text-primary">Pay Never.</span>
               </h1>
               <p className="text-sm md:text-base text-foreground/50 leading-relaxed max-w-md">
-                Private consumer credit on Sui. Check out with credit, repay from yield, and borrow against a
-                reputation score computed inside a confidential TEE — your financial data never leaves the enclave.
+                Private consumer credit on Sui. Check out with{" "}
+                <Link href="/bnpl" className="text-primary hover:underline font-bold">
+                  Buy Now, Pay Never (BNPL)
+                </Link>
+                , repay from yield, or{" "}
+                <Link href="/lend-borrow" className="text-primary hover:underline font-bold">
+                  lend & borrow on Sui
+                </Link>
+                . Borrow against a reputation score computed inside a confidential{" "}
+                <Link href="/credit" className="text-primary hover:underline font-bold">
+                  private TEE credit
+                </Link>{" "}
+                enclave — your financial data never leaves the enclave.
               </p>
             </div>
 
@@ -130,6 +141,97 @@ export default function Page() {
                   </div>
                   <p className="text-[11px] text-foreground/45 leading-relaxed">{f.desc}</p>
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-border/20 my-16" />
+
+        {/* How It Works Section */}
+        <div className="space-y-12 pb-16">
+          <div className="text-center space-y-2">
+            <span className="text-[10px] tracking-[0.4em] text-primary/60 uppercase">XORR // WORKFLOW</span>
+            <h2 className="text-3xl md:text-4xl tracking-tighter font-black uppercase italic">How_It_Works</h2>
+            <p className="text-xs text-foreground/40 max-w-md mx-auto">Three simple steps to unlock private decentralized consumer credit on Sui.</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                step: "01",
+                title: "Connect Wallet",
+                desc: "Securely link your Sui wallet to initialize your private profile. No email or personal identity information required."
+              },
+              {
+                step: "02",
+                title: "Attest TEE Credit",
+                desc: "Generate a decentralized reputation score computed confidentially inside a secure AWS Nitro TEE enclave. Your private financial data never leaves the enclave. Learn more about our ",
+                linkText: "private TEE credit",
+                href: "/credit"
+              },
+              {
+                step: "03",
+                title: "Buy Now, Pay Never",
+                desc: "Checkout with credit. Collateral assets are deployed into Sui lending pools to earn high yield, which auto-repays your BNPL credit line. Try ",
+                linkText: "Buy Now, Pay Never",
+                href: "/bnpl"
+              }
+            ].map((s) => (
+              <div key={s.step} className="bg-[#0d0f14]/60 border border-border/30 rounded-2xl p-6 relative overflow-hidden group hover:border-primary/20 transition-all">
+                <span className="absolute top-2 right-4 text-7xl font-black text-primary/5 font-mono select-none">{s.step}</span>
+                <div className="space-y-3 relative z-10">
+                  <span className="text-[10px] font-bold text-primary tracking-widest uppercase font-mono">{s.step} // STEP</span>
+                  <h3 className="text-base font-bold text-white uppercase">{s.title}</h3>
+                  <p className="text-xs text-foreground/50 leading-relaxed font-mono">
+                    {s.desc}
+                    {s.href && s.linkText && (
+                      <Link href={s.href} className="text-primary hover:underline font-bold inline-flex items-center gap-0.5">
+                        {s.linkText} <ArrowUpRight size={10} />
+                      </Link>
+                    )}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="space-y-12 pb-24 border-t border-border/20 pt-16">
+          <div className="text-center space-y-2">
+            <span className="text-[10px] tracking-[0.4em] text-primary/60 uppercase">XORR // FAQ</span>
+            <h2 className="text-3xl md:text-4xl tracking-tighter font-black uppercase italic">Frequently_Asked_Questions</h2>
+            <p className="text-xs text-foreground/40 max-w-md mx-auto">Get answers to the most common questions about the XORR protocol.</p>
+          </div>
+
+          <div className="max-w-3xl mx-auto space-y-6">
+            {[
+              {
+                q: "What is Buy Now, Pay Never?",
+                a: "Buy Now, Pay Never (BNPL) allows users to purchase items on credit by locking USDC collateral. The collateral is automatically routed to yield-generating protocols (such as lending pools or liquidity pools on Sui), and the earned yield pays off the outstanding credit over time."
+              },
+              {
+                q: "How does the TEE credit score work?",
+                a: "XORR Finance computes your credit score inside an AWS Nitro TEE (Trusted Execution Environment). It processes off-chain financial data confidentially, issuing an on-chain cryptographic attestation. Your raw financial data never leaves the enclave."
+              },
+              {
+                q: "Is my financial data private?",
+                a: "Yes. Because all computations occur inside a confidential enclave (TEE), no one—not even the XORR protocol developers—can inspect your private financial data. Only the final score is attested on-chain."
+              },
+              {
+                q: "What is XORR Finance built on?",
+                a: "XORR Finance is built natively on the high-performance Sui blockchain, leveraging its low latency, high throughput, and secure smart contracts to handle collateral management, lending pools, and BNPL checkouts."
+              }
+            ].map((faq, index) => (
+              <div key={index} className="bg-[#05080f]/50 border border-border/20 rounded-2xl p-6 hover:border-primary/10 transition-all">
+                <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-2 font-mono">
+                  <span className="text-primary text-xs font-black">&gt;</span> {faq.q}
+                </h4>
+                <p className="text-xs text-foreground/50 leading-relaxed pl-4 border-l border-primary/20 font-mono">
+                  {faq.a}
+                </p>
               </div>
             ))}
           </div>

@@ -3,7 +3,7 @@ const { MongoClient } = require('mongodb');
 async function migrate() {
     const localUri = "mongodb://127.0.0.1:27017";
     // URL encoded @ is %40
-    const remoteUri = "mongodb+srv://polaris:Nicolas1234%40@cluster0.mpnsajv.mongodb.net/?appName=Cluster0";
+    const remoteUri = process.env.MONGODB_URI || "";
     
     const localClient = new MongoClient(localUri);
     const remoteClient = new MongoClient(remoteUri);

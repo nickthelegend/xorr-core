@@ -136,10 +136,11 @@ export function applyTeeScoreTx(p: {
 }): Transaction {
   const tx = new Transaction();
   tx.moveCall({
-    target: `${CONFIDENTIAL_PKG}::confidential_credit::verify_and_apply_score_attested`,
+    target: `${CONFIDENTIAL_PKG}::confidential_credit::verify_and_apply_score_attested_v2`,
     arguments: [
       tx.object(ATTESTED_ORACLE_ID),
       tx.object(p.profileId),
+      tx.object("0x6"), // Clock — enforces attestation freshness (replay-safe)
       tx.pure.u64(BigInt(p.score)),
       tx.pure.u64(BigInt(p.approvedLimit)),
       tx.pure.u64(BigInt(p.nonce)),

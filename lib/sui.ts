@@ -35,7 +35,7 @@ export const CREDIT_ORACLE_ID =
 /** Upgraded package version holding the Nitro-attestation functions (types stay
  * at USDT_PACKAGE_ID; this id is only for calling the new `_attested` functions). */
 export const CONFIDENTIAL_PKG =
-  process.env.NEXT_PUBLIC_CONFIDENTIAL_PKG ?? "0xd74650b76c2a22ad331b7c55b96d72449145ecd6ff8a3b278047c7a76ed577ac";
+  process.env.NEXT_PUBLIC_CONFIDENTIAL_PKG ?? "0x2f3761b5b891d14834269c48b732e68ea29824234117a43871f47848bd5e9982";
 
 /** `AttestedOracle`: enclave key bound to a verified on-chain AWS Nitro attestation
  * (PCR-gated). Trust is in the audited enclave image, not an admin key. */

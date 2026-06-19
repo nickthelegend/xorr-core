@@ -6,7 +6,7 @@ import { SuiJsonRpcClient } from "@mysten/sui/jsonRpc";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { Transaction } from "@mysten/sui/transactions";
 
-const PKG = "0xd74650b76c2a22ad331b7c55b96d72449145ecd6ff8a3b278047c7a76ed577ac"; // upgraded
+const PKG = "0x2f3761b5b891d14834269c48b732e68ea29824234117a43871f47848bd5e9982"; // upgraded v3 (freshness)
 const AO = "0xe8d3e3baf92ad7ab86d57ae55aedaf2be15fdff6000881f85aa0c489cc6753a8"; // AttestedOracle
 const ENCLAVE = "http://98.81.188.34:3000/process_data";
 const M = 1_000_000;
@@ -34,10 +34,10 @@ async function run(label, build) {
   if (!resp.credit_signature) throw new Error("enclave returned no signature: " + JSON.stringify(resp));
   console.log(`✓ TEE signed score=${score} (key 0x${resp.enclave_pubkey.slice(0, 12)}…)`);
 
-  await run("verify_and_apply_score_attested (against attestation-bound key)", (tx) => {
+  await run("verify_and_apply_score_attested_v2 (attested key + freshness)", (tx) => {
     tx.moveCall({
-      target: `${PKG}::confidential_credit::verify_and_apply_score_attested`,
-      arguments: [tx.object(AO), tx.object(profile), tx.pure.u64(score), tx.pure.u64(approved_limit), tx.pure.u64(nonce), tx.pure.u64(BigInt(resp.timestamp_ms)), tx.pure.vector("u8", hexToBytes(resp.credit_signature))],
+      target: `${PKG}::confidential_credit::verify_and_apply_score_attested_v2`,
+      arguments: [tx.object(AO), tx.object(profile), tx.object("0x6"), tx.pure.u64(score), tx.pure.u64(approved_limit), tx.pure.u64(nonce), tx.pure.u64(BigInt(resp.timestamp_ms)), tx.pure.vector("u8", hexToBytes(resp.credit_signature))],
     });
   });
   const o = await client.getObject({ id: profile, options: { showContent: true } });

@@ -15,13 +15,18 @@ const { modules, dependencies, digest } = JSON.parse(readFileSync("/tmp/xorr_byt
 const client = new SuiJsonRpcClient({ url: "https://fullnode.testnet.sui.io:443", network: "testnet" });
 const kp = Ed25519Keypair.fromSecretKey(process.env.SUI_PRIVATE_KEY);
 
+// Upgrade against the cap's CURRENT package (latest version) so chained upgrades work.
+const capObj = await client.getObject({ id: UPGRADE_CAP, options: { showContent: true } });
+const CURRENT_PKG = capObj.data.content.fields.package;
+console.log("upgrading from current package:", CURRENT_PKG, "(original/type-origin:", OLD_PKG + ")");
+
 const tx = new Transaction();
 const cap = tx.object(UPGRADE_CAP);
 const ticket = tx.moveCall({
   target: "0x2::package::authorize_upgrade",
   arguments: [cap, tx.pure.u8(0), tx.pure.vector("u8", digest)],
 });
-const receipt = tx.upgrade({ modules, dependencies, package: OLD_PKG, ticket });
+const receipt = tx.upgrade({ modules, dependencies, package: CURRENT_PKG, ticket });
 tx.moveCall({ target: "0x2::package::commit_upgrade", arguments: [cap, receipt] });
 tx.setGasBudget(500000000);
 

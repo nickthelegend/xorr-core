@@ -67,7 +67,7 @@ export default function CreditPage() {
       })
       const data = await r.json()
       if (!r.ok || data.error) { toast.error(data.error || "Enclave request failed"); return }
-      await runTx("Apply TEE credit score", applyTeeScoreTx({
+      await runTx("TEE score — verified vs attested enclave key ✓", applyTeeScoreTx({
         profileId,
         score: data.score,
         approvedLimit: data.approvedLimit,
@@ -75,6 +75,9 @@ export default function CreditPage() {
         timestampMs: data.timestampMs,
         signatureHex: data.signatureHex,
       }))
+      toast.success("Score attested by the audited TEE enclave", {
+        description: "Verified on-chain against the AWS Nitro–attestation-bound key (PCR-gated). Your financial data never left the enclave.",
+      })
       await refresh()
     } catch { /* toast shown by runTx */ } finally { setWorking(false) }
   }
@@ -128,7 +131,9 @@ export default function CreditPage() {
       <div className="glass-card rounded-lg border border-purple-500/20 overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.05)]">
         <div className="bg-purple-500/5 px-5 py-2.5 border-b border-purple-500/10 flex justify-between items-center">
           <div className="flex items-center gap-2"><Lock className="size-3.5 text-purple-400" /><span className="text-[10px] text-purple-400/80 uppercase tracking-widest font-bold">Private_TEE_Credit_Score</span></div>
-          <span className="text-[9px] text-purple-400/40 font-bold">Signed in the credit enclave</span>
+          <span className="flex items-center gap-1.5 text-[8px] font-black uppercase tracking-widest text-green-400 bg-green-500/10 border border-green-500/30 rounded-full px-2 py-1">
+            <ShieldCheck className="size-3" /> Enclave Attested · On-chain PCR
+          </span>
         </div>
         <div className="p-6 space-y-5">
           <p className="text-[10px] text-white/40 leading-relaxed max-w-2xl">

@@ -7,6 +7,7 @@ const TOKEN_LOGOS: Record<string, string> = {
   WBTC:  "/tokens/bitcoin-btc-logo.svg",
   USDC:  "/tokens/usd-coin-usdc-logo.svg",
   DUSDC: "/tokens/usd-coin-usdc-logo.svg",
+  DEEP:  "https://s2.coinmarketcap.com/static/img/coins/64x64/33391.png",
   USDT:  "/tokens/tether-usdt-logo.svg",
   BNB:   "/tokens/bnb-bnb-logo.svg",
 }
@@ -30,6 +31,16 @@ export function TokenIcon({
       >
         {symbol[0]}
       </div>
+    )
+  }
+
+  // Remote logos (e.g. DEEP from CoinMarketCap) — plain <img> avoids next/image
+  // remote-domain config.
+  if (src.startsWith("http")) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return (
+      <img src={src} alt={symbol} width={size} height={size}
+        className={`rounded-full object-contain ${className}`} style={{ width: size, height: size }} />
     )
   }
 

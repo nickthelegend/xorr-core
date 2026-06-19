@@ -19,7 +19,7 @@ import { useObolusWallet } from "@/lib/hooks/useObolusWallet"
 import { cn } from "@/lib/utils"
 
 const NAV_ITEMS = [
-  { href: "/pools", label: "POOLS", icon: PiggyBank },
+  { href: "/lend", label: "LEND", icon: PiggyBank },
   { href: "/borrow", label: "BORROW", icon: ShoppingBag },
   { href: "/credit", label: "CREDIT", icon: CreditCard },
   { href: "/positions", label: "POSITIONS", icon: Gauge },

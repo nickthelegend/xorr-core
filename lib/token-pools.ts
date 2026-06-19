@@ -57,6 +57,31 @@ export function supplyToPoolTx(pool: TokenPool, primaryCoinId: string, amount: n
   return tx;
 }
 
+/** Harvest: inject `amount` of the pool's token as realized strategy yield
+ * (e.g. DeepBook market-making fees). Lifts every supplier's share value. */
+export function harvestYieldTx(pool: TokenPool, primaryCoinId: string, amount: number): Transaction {
+  const tx = new Transaction();
+  const [part] = tx.splitCoins(tx.object(primaryCoinId), [tx.pure.u64(raw(amount, pool.decimals))]);
+  tx.moveCall({
+    target: `${PKG}::lending_pool::inject_yield`,
+    typeArguments: [pool.coinType],
+    arguments: [tx.object(pool.poolId), part],
+  });
+  return tx;
+}
+
+/** Redeem a supply receipt for the current value of its shares (principal + yield). */
+export function withdrawFromPoolTx(pool: TokenPool, receiptId: string, sender: string): Transaction {
+  const tx = new Transaction();
+  const out = tx.moveCall({
+    target: `${PKG}::lending_pool::withdraw`,
+    typeArguments: [pool.coinType],
+    arguments: [tx.object(pool.poolId), tx.object(receiptId)],
+  });
+  tx.transferObjects([out], sender);
+  return tx;
+}
+
 /** Over-collateralized borrow of `amount`, locking `collateral` (>=150%) of the same token. */
 export function borrowFromPoolTx(pool: TokenPool, primaryCoinId: string, amount: number, collateral: number, sender: string): Transaction {
   const tx = new Transaction();
@@ -68,4 +93,21 @@ export function borrowFromPoolTx(pool: TokenPool, primaryCoinId: string, amount:
   });
   tx.transferObjects([borrowed], sender);
   return tx;
+}
+
+/** Repay a collateralized position (principal + interest); overpayment refunded. */
+export function repayCollateralizedToPoolTx(pool: TokenPool, positionId: string, profileId: string, primaryCoinId: string, amount: number, sender: string): Transaction {
+  const tx = new Transaction();
+  const [pay] = tx.splitCoins(tx.object(primaryCoinId), [tx.pure.u64(raw(amount, pool.decimals))]);
+  const refund = tx.moveCall({
+    target: `${PKG}::market::repay_collateralized`,
+    typeArguments: [pool.coinType, pool.coinType],
+    arguments: [tx.object(positionId), tx.object(pool.poolId), tx.object(profileId), pay],
+  });
+  tx.transferObjects([refund], sender);
+  return tx;
+}
+
+export function poolForType(objectType: string): TokenPool {
+  return TOKEN_POOLS.find((p) => objectType.includes(p.coinType)) ?? TOKEN_POOLS[0];
 }

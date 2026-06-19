@@ -63,7 +63,7 @@ export default function CreditPage() {
       const r = await fetch("/api/credit-score", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ borrower: account.address, repaidTotal: profile?.repaidTotal ?? 0 }),
+        body: JSON.stringify({ borrower: account.address, profileId }),
       })
       const data = await r.json()
       if (!r.ok || data.error) { toast.error(data.error || "Enclave request failed"); return }

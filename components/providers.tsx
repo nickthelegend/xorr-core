@@ -1,8 +1,6 @@
 "use client";
 
 import { PropsWithChildren } from "react";
-import { createConfig, http, WagmiProvider } from "wagmi";
-import { sepolia } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SuiClientProvider, WalletProvider, createNetworkConfig } from "@mysten/dapp-kit";
 import "@mysten/dapp-kit/dist/index.css";
@@ -20,25 +18,13 @@ const { networkConfig } = createNetworkConfig({
   localnet: { url: SUI_RPC_URLS.localnet, network: "localnet" },
 });
 
-// Dormant, connector-less wagmi config. The EVM wallet (RainbowKit / MetaMask)
-// has been REMOVED — XORR now connects via Sui (@mysten/dapp-kit). This empty
-// config (no connectors) only keeps the legacy EVM pages that haven't been
-// ported to Sui yet (credit/borrow/vaults/positions/...) from throwing
-// "useAccount must be used within WagmiProvider". Delete it once those pages
-// are migrated to Sui.
-const wagmiConfig = createConfig({
-  chains: [sepolia],
-  transports: { [sepolia.id]: http() },
-});
-
 const queryClient = new QueryClient();
 
 export function Providers({ children }: PropsWithChildren) {
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
       <QueryClientProvider client={queryClient}>
-        <WagmiProvider config={wagmiConfig}>
-          <SuiClientProvider networks={networkConfig} defaultNetwork={SUI_NETWORK}>
+        <SuiClientProvider networks={networkConfig} defaultNetwork={SUI_NETWORK}>
             <WalletProvider autoConnect>
               {children}
               <Toaster position="top-right" theme="dark" />
@@ -55,8 +41,7 @@ export function Providers({ children }: PropsWithChildren) {
                 theme="light"
               />
             </WalletProvider>
-          </SuiClientProvider>
-        </WagmiProvider>
+        </SuiClientProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

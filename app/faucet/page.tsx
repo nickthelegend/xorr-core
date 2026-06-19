@@ -39,7 +39,7 @@ export default function FaucetPage() {
     try {
       const raw = BigInt(Math.floor(parsed * 10 ** USDT_DECIMALS))
       const tx = new Transaction()
-      // usdc::faucet_mint(faucet, amount) -> Coin<USDT>, then send to recipient.
+      // usdc::faucet_mint(faucet, amount) -> Coin<USDC>, then send to recipient.
       const [coin] = tx.moveCall({
         target: `${USDT_PACKAGE_ID}::usdc::faucet_mint`,
         arguments: [tx.object(USDT_FAUCET_ID), tx.pure.u64(raw)],

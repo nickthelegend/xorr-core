@@ -10,6 +10,7 @@ import { useCurrentAccount, useSuiClient } from "@mysten/dapp-kit"
 import { readCreditProfile, USDT_COIN_TYPE, type CreditProfileView } from "@/lib/bnpl"
 import { readLendingPool, readPositions, type LendingPoolStats, type OnChainPosition } from "@/lib/positions"
 import { SUI_NETWORK, suiscanTxUrl } from "@/lib/sui"
+import { ConnectWalletButton } from "@/components/wallet/connect-wallet-button"
 
 const LS_PROFILE = "xorr_bnpl_profile"
 
@@ -62,6 +63,80 @@ export default function Page() {
 
   const totalBorrowed = positions.filter((p) => p.kind !== "supply").reduce((s, p) => s + p.amount, 0)
   const totalSupplied = positions.filter((p) => p.kind === "supply").reduce((s, p) => s + p.amount, 0)
+
+  // ── Wallet gate: until a Sui wallet is connected, show the hero, not the app ──
+  if (!account) {
+    return (
+      <div className="font-mono relative">
+        <div className="pointer-events-none absolute -top-32 left-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[120px]" />
+        <div className="pointer-events-none absolute top-40 right-10 h-64 w-64 rounded-full bg-purple-500/10 blur-[120px]" />
+
+        <div className="relative grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[72dvh] py-10">
+          {/* Pitch + connect CTA */}
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-[10px] text-primary font-bold tracking-widest uppercase backdrop-blur-md">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" /> XORR // Sui_{SUI_NETWORK} · Live
+            </div>
+
+            <div className="space-y-5">
+              <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic leading-[0.92] text-foreground">
+                Buy Now,<br /><span className="text-primary">Pay Never.</span>
+              </h1>
+              <p className="text-sm md:text-base text-foreground/50 leading-relaxed max-w-md">
+                Private consumer credit on Sui. Check out with credit, repay from yield, and borrow against a
+                reputation score computed inside a confidential TEE — your financial data never leaves the enclave.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="[&_button]:h-12 [&_button]:px-6 [&_button]:text-xs [&_button]:rounded-xl [&_button]:shadow-[0_0_25px_rgba(166,242,74,0.25)]">
+                <ConnectWalletButton />
+              </div>
+              <span className="flex items-center gap-2 text-[10px] text-foreground/30 uppercase tracking-widest">
+                <Wallet size={12} /> Connect your Sui wallet to enter
+              </span>
+            </div>
+
+            {/* Public, wallet-less stats */}
+            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-border/30 max-w-md">
+              <div>
+                <div className="text-[9px] text-foreground/30 uppercase tracking-widest mb-1">Pool Liquidity</div>
+                <div className="text-lg font-black text-foreground">{pool ? pool.totalSupplied.toLocaleString() : "—"} <span className="text-[10px] text-foreground/40">USDC</span></div>
+              </div>
+              <div>
+                <div className="text-[9px] text-foreground/30 uppercase tracking-widest mb-1">Available</div>
+                <div className="text-lg font-black text-primary">{pool ? pool.available.toLocaleString() : "—"} <span className="text-[10px] text-foreground/40">USDC</span></div>
+              </div>
+              <div>
+                <div className="text-[9px] text-foreground/30 uppercase tracking-widest mb-1">Network</div>
+                <div className="text-lg font-black text-foreground uppercase">Sui</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Feature pillars */}
+          <div className="space-y-4">
+            {[
+              { icon: CreditCard, title: "Buy Now, Pay Never", tag: "BNPL", desc: "Checkout with on-chain credit. Collateral is deployed to earn yield that auto-repays your loan." },
+              { icon: TrendingUp, title: "Lend & Borrow", tag: "Markets", desc: "Supply USDC to earn, or borrow over- and under-collateralized against your credit line." },
+              { icon: Lock, title: "Private TEE Credit", tag: "Confidential", desc: "Your score is computed inside a confidential enclave and attested on-chain — data never leaves the TEE." },
+            ].map((f) => (
+              <div key={f.title} className="group flex items-start gap-4 bg-[#0d0f14]/80 border border-border/40 rounded-2xl p-5 hover:border-primary/30 transition-colors backdrop-blur-sm">
+                <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary flex-shrink-0"><f.icon size={18} /></div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-foreground">{f.title}</h3>
+                    <span className="text-[8px] text-primary/60 uppercase tracking-widest border border-primary/20 rounded px-1.5 py-0.5">{f.tag}</span>
+                  </div>
+                  <p className="text-[11px] text-foreground/45 leading-relaxed">{f.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 font-mono">

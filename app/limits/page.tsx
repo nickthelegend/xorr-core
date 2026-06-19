@@ -41,7 +41,7 @@ export default function LimitsPage() {
               <div className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" /><span className="text-[10px] text-white/40">ON_CHAIN</span></div>
             </div>
             <div className="p-8 flex flex-col gap-2">
-              <span className="text-[10px] text-white/40 uppercase">Available_Credit (USDT)</span>
+              <span className="text-[10px] text-white/40 uppercase">Available_Credit (USDC)</span>
               <div className="flex items-baseline gap-3">
                 <span className="text-5xl md:text-6xl font-black tracking-tighter text-white">{profile ? profile.available.toLocaleString() : "—"}</span>
                 <span className="text-primary font-bold text-sm tracking-widest uppercase">Available</span>

@@ -79,7 +79,7 @@ export default function PositionsPage() {
       {/* stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          ["USDT_Balance", usdt.toLocaleString()],
+          ["USDC_Balance", usdt.toLocaleString()],
           ["Total_Supplied", totalSupplied.toLocaleString()],
           ["Total_Borrowed", totalBorrowed.toLocaleString()],
           ["TEE_Score", profile ? `${profile.score}` : "—"],
@@ -138,10 +138,10 @@ export default function PositionsPage() {
               </div>
               <div className="col-span-3 text-right">
                 <span className="text-sm font-bold tabular-nums">{p.amount.toLocaleString()}</span>
-                <span className="text-[10px] text-foreground/30 ml-1">USDT</span>
+                <span className="text-[10px] text-foreground/30 ml-1">USDC</span>
               </div>
               <div className="col-span-2 text-right text-[11px] text-foreground/50 tabular-nums">
-                {p.secondary != null ? `${p.secondary.toLocaleString()} USDT` : "—"}
+                {p.secondary != null ? `${p.secondary.toLocaleString()} USDC` : "—"}
               </div>
               <div className="col-span-2 flex justify-end">
                 <a href={`https://suiscan.xyz/${SUI_NETWORK}/object/${p.id}`} target="_blank" rel="noopener noreferrer"
@@ -168,8 +168,8 @@ export default function PositionsPage() {
         </Link>
         <Link href="/faucet" className="bg-[#0d0f14] border border-border/30 rounded-3xl p-6 hover:border-primary/40 transition-all group">
           <Coins className="text-primary mb-3" size={20} />
-          <div className="text-sm font-black uppercase tracking-widest">Get Test USDT</div>
-          <p className="text-[11px] text-foreground/40 mt-1">Mint testnet USDT to try the flows.</p>
+          <div className="text-sm font-black uppercase tracking-widest">Get Test USDC</div>
+          <p className="text-[11px] text-foreground/40 mt-1">Mint testnet USDC to try the flows.</p>
         </Link>
       </div>
     </div>

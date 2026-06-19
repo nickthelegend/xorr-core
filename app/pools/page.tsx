@@ -47,7 +47,7 @@ export default function PoolsPage() {
           <div className="absolute top-0 right-0 p-4 opacity-5"><ShieldCheck size={80} /></div>
           <span className="text-[10px] text-foreground/40 uppercase tracking-widest">Total_Supplied</span>
           <div className="text-3xl font-bold tracking-tight">
-            {loading ? <Loader2 size={22} className="animate-spin text-foreground/30" /> : stats ? `${fmt(stats.totalSupplied)} USDT` : "—"}
+            {loading ? <Loader2 size={22} className="animate-spin text-foreground/30" /> : stats ? `${fmt(stats.totalSupplied)} USDC` : "—"}
           </div>
           <div className="text-[10px] text-primary/60 flex items-center gap-1 mt-2">
             <TrendingUp size={12} /> Pooled liquidity
@@ -56,13 +56,13 @@ export default function PoolsPage() {
         <div className="bg-[#05080f]/40 border border-border/40 rounded-2xl p-6 backdrop-blur-md flex flex-col gap-2">
           <span className="text-[10px] text-foreground/40 uppercase tracking-widest">Total_Borrowed</span>
           <div className="text-3xl font-bold tracking-tight text-red-400">
-            {loading ? <Loader2 size={22} className="animate-spin text-foreground/30" /> : stats ? `${fmt(stats.totalBorrowed)} USDT` : "—"}
+            {loading ? <Loader2 size={22} className="animate-spin text-foreground/30" /> : stats ? `${fmt(stats.totalBorrowed)} USDC` : "—"}
           </div>
         </div>
         <div className="bg-[#05080f]/40 border border-border/40 rounded-2xl p-6 backdrop-blur-md flex flex-col gap-2">
           <span className="text-[10px] text-foreground/40 uppercase tracking-widest">Available</span>
           <div className="text-3xl font-bold tracking-tight text-primary">
-            {loading ? <Loader2 size={22} className="animate-spin text-foreground/30" /> : stats ? `${fmt(stats.available)} USDT` : "—"}
+            {loading ? <Loader2 size={22} className="animate-spin text-foreground/30" /> : stats ? `${fmt(stats.available)} USDC` : "—"}
           </div>
         </div>
       </div>
@@ -85,9 +85,9 @@ export default function PoolsPage() {
           {(!error || stats) && (
             <div className="grid grid-cols-12 px-8 py-6 items-center hover:bg-primary/5 transition-colors">
               <div className="col-span-4 flex items-center gap-3">
-                <TokenIcon symbol="USDT" size={24} className="flex-shrink-0" />
+                <TokenIcon symbol="USDC" size={24} className="flex-shrink-0" />
                 <div>
-                  <div className="text-sm font-bold text-white">USDT</div>
+                  <div className="text-sm font-bold text-white">USDC</div>
                   <div className="text-[10px] text-foreground/40 italic">XORR Demo Pool</div>
                 </div>
               </div>
@@ -136,7 +136,7 @@ export default function PoolsPage() {
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-primary">Open the Money Market</p>
               <p className="text-[11px] text-foreground/50 leading-relaxed mt-2">
-                Supply USDT to earn yield, or borrow against collateral or your private TEE credit score.
+                Supply USDC to earn yield, or borrow against collateral or your private TEE credit score.
               </p>
             </div>
             <div className="flex items-center justify-end mt-4">

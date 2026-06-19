@@ -15,8 +15,8 @@ const LS_PROFILE = "xorr_bnpl_profile"
 
 const ACTIONS = [
   { href: "/bnpl", label: "Buy Now, Pay Never", desc: "Checkout with credit, repay from yield.", icon: CreditCard },
-  { href: "/lend-borrow", label: "Lend / Borrow", desc: "Supply USDT or borrow on Sui.", icon: TrendingUp },
-  { href: "/faucet", label: "Get Test USDT", desc: "Mint testnet USDT to try the flows.", icon: Coins },
+  { href: "/lend-borrow", label: "Lend / Borrow", desc: "Supply USDC or borrow on Sui.", icon: TrendingUp },
+  { href: "/faucet", label: "Get Test USDC", desc: "Mint testnet USDC to try the flows.", icon: Coins },
 ]
 
 export default function Page() {
@@ -83,7 +83,7 @@ export default function Page() {
             <div className="space-y-6">
               <div>
                 <div className="text-[10px] text-foreground/40 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                  <CreditCard size={12} className="text-primary" />USDT_Balance
+                  <CreditCard size={12} className="text-primary" />USDC_Balance
                 </div>
                 <div className="text-5xl font-black tracking-tighter text-foreground font-mono">
                   {account ? usdt.toLocaleString() : "—"}
@@ -107,7 +107,7 @@ export default function Page() {
                   <span className="text-[10px] text-foreground/20 ml-2">/ 850</span>
                 </div>
                 {profile && (
-                  <p className="text-[10px] text-purple-400/60 uppercase tracking-widest mt-1">Limit: {profile.creditLimit} USDT · Available: {profile.available} USDT</p>
+                  <p className="text-[10px] text-purple-400/60 uppercase tracking-widest mt-1">Limit: {profile.creditLimit} USDC · Available: {profile.available} USDC</p>
                 )}
               </div>
               {!account && (
@@ -121,7 +121,7 @@ export default function Page() {
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] text-foreground/50 uppercase tracking-widest">Pool_Available</span>
                   <span className="text-sm font-black text-primary px-2 py-0.5 rounded border border-primary/30">
-                    {pool ? `${pool.available.toLocaleString()} USDT` : "—"}
+                    {pool ? `${pool.available.toLocaleString()} USDC` : "—"}
                   </span>
                 </div>
                 <div className="h-2 bg-secondary/50 rounded-full overflow-hidden border border-border/10">

@@ -24,7 +24,7 @@ export default function MerchantPage() {
           <div className="space-y-2">
             <h2 className="text-xl font-black uppercase tracking-tighter">Accept BNPL on Sui</h2>
             <p className="text-sm text-foreground/50 leading-relaxed max-w-md">
-              Customers settle bills in USDT directly to your Sui address. Payments confirm on-chain and are
+              Customers settle bills in USDC directly to your Sui address. Payments confirm on-chain and are
               auditable on Suiscan — no custodial escrow, no EVM bridge.
             </p>
           </div>
@@ -50,7 +50,7 @@ export default function MerchantPage() {
           <ShieldCheck className="text-primary flex-shrink-0" size={20} />
           <p className="text-[11px] text-foreground/50 leading-relaxed">
             Bill links open the checkout at <span className="text-primary">/pay/&lt;hash&gt;</span>, where the customer
-            pays you in USDT on Sui {SUI_NETWORK}. Configure your settlement address per bill or via
+            pays you in USDC on Sui {SUI_NETWORK}. Configure your settlement address per bill or via
             NEXT_PUBLIC_XORR_MERCHANT_ADDRESS.
           </p>
         </div>

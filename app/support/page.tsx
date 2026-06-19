@@ -101,7 +101,7 @@ export default function SupportPage() {
                                     { title: "REPAYMENT_LOGIC", desc: "Understanding automated BNPL settlements and health factor protection thresholds.", icon: Calculator },
                                     { title: "NETWORK_LATENCY_FAQ", desc: "Diagnostics for inter-chain settlement delay and RPC endpoint synchronization.", icon: Monitor },
                                     { title: "VAULT_ARCHITECTURE_SEC", desc: "Overview of L3 secure vault implementations and collateral isolation layers.", icon: Shield },
-                                    { title: "SUI_WALLET_SETUP", desc: "Documentation on connecting a Sui wallet and getting testnet USDT.", icon: LinkIcon }
+                                    { title: "SUI_WALLET_SETUP", desc: "Documentation on connecting a Sui wallet and getting testnet USDC.", icon: LinkIcon }
                                 ].map((item, idx) => (
                                     <div key={idx} className="p-4 border-b border-white/5 hover:bg-primary/5 transition-colors cursor-pointer group">
                                         <div className="flex items-start justify-between">

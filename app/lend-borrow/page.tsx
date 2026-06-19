@@ -67,7 +67,7 @@ export default function LendBorrowPage() {
 
   const sender = account?.address ?? "";
 
-  const onFaucet = () => guard("faucet", async () => { await runTx("Mint 500 USDT", faucetTx(500)); });
+  const onFaucet = () => guard("faucet", async () => { await runTx("Mint 500 USDC", faucetTx(500)); });
 
   const onProfile = () => guard("profile", async () => {
     const res = await runTx("Open credit profile", openProfileTx());
@@ -77,14 +77,14 @@ export default function LendBorrowPage() {
 
   const onSupply = () => guard("supply", async () => {
     if (!primaryCoin) return;
-    await runTx(`Supply ${supplyAmt} USDT`, supplyTx(primaryCoin, Number(supplyAmt), sender));
+    await runTx(`Supply ${supplyAmt} USDC`, supplyTx(primaryCoin, Number(supplyAmt), sender));
   });
 
   const onBorrowCollat = () => guard("borrow", async () => {
     if (!primaryCoin) return;
     const amt = Number(borrowAmt);
     const col = Math.ceil(amt * 1.5);
-    const res = await runTx(`Borrow ${amt} USDT (collateralized)`, borrowCollateralizedTx(primaryCoin, amt, col, sender));
+    const res = await runTx(`Borrow ${amt} USDC (collateralized)`, borrowCollateralizedTx(primaryCoin, amt, col, sender));
     const id = findCreated(res, "::market::CollateralizedPosition<");
     const lockId = findCreated(res, "::collateral::CollateralLock<");
     if (id && lockId) saveCollat([...collat, { id, lockId, repay: +(amt * 1.05).toFixed(6) }]);
@@ -92,7 +92,7 @@ export default function LendBorrowPage() {
 
   const onRepayCollat = (p: CollatPos) => guard("repay", async () => {
     if (!primaryCoin || !profileId) return;
-    await runTx(`Repay ${p.repay} USDT`, repayCollateralizedTx(p.id, profileId, primaryCoin, p.repay, sender));
+    await runTx(`Repay ${p.repay} USDC`, repayCollateralizedTx(p.id, profileId, primaryCoin, p.repay, sender));
     // leave the position so the user can reclaim collateral, then drop on reclaim
   });
 
@@ -104,14 +104,14 @@ export default function LendBorrowPage() {
   const onBorrowUnsec = () => guard("borrow", async () => {
     if (!profileId) return;
     const amt = Number(unsecAmt);
-    const res = await runTx(`Borrow ${amt} USDT (unsecured)`, borrowUncollateralizedTx(profileId, amt, sender));
+    const res = await runTx(`Borrow ${amt} USDC (unsecured)`, borrowUncollateralizedTx(profileId, amt, sender));
     const id = findCreated(res, "::market::UnsecuredPosition<");
     if (id) saveUnsec([...unsec, { id, repay: +(amt * 1.1).toFixed(6) }]);
   });
 
   const onRepayUnsec = (p: UnsecPos) => guard("repay", async () => {
     if (!primaryCoin || !profileId) return;
-    await runTx(`Repay ${p.repay} USDT`, repayUncollateralizedTx(p.id, profileId, primaryCoin, p.repay, sender));
+    await runTx(`Repay ${p.repay} USDC`, repayUncollateralizedTx(p.id, profileId, primaryCoin, p.repay, sender));
     saveUnsec(unsec.filter((x) => x.id !== p.id));
   });
 
@@ -152,7 +152,7 @@ export default function LendBorrowPage() {
 
       {/* top stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[["USDT", usdt.toLocaleString()], ["Credit_Limit", profile ? `${profile.creditLimit}` : "—"], ["Available", profile ? `${profile.available}` : "—"], ["TEE_Score", profile ? `${score}` : "—"]].map(([l, v]) => (
+        {[["USDC", usdt.toLocaleString()], ["Credit_Limit", profile ? `${profile.creditLimit}` : "—"], ["Available", profile ? `${profile.available}` : "—"], ["TEE_Score", profile ? `${score}` : "—"]].map(([l, v]) => (
           <div key={l} className="bg-[#05080f]/60 border border-border/20 rounded-2xl p-4 flex flex-col gap-1">
             <span className="text-[10px] font-black uppercase tracking-widest text-foreground/40">{l}</span>
             <span className="text-2xl font-light tracking-tighter">{v}</span>
@@ -161,23 +161,23 @@ export default function LendBorrowPage() {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <button onClick={onFaucet} disabled={busy} className="px-5 h-10 rounded-xl bg-white/5 border border-border/40 text-[11px] font-black uppercase tracking-widest hover:border-primary/40 disabled:opacity-40 flex items-center gap-2"><Coins size={14} /> Get_500_USDT</button>
+        <button onClick={onFaucet} disabled={busy} className="px-5 h-10 rounded-xl bg-white/5 border border-border/40 text-[11px] font-black uppercase tracking-widest hover:border-primary/40 disabled:opacity-40 flex items-center gap-2"><Coins size={14} /> Get_500_USDC</button>
         {!profileId && <button onClick={onProfile} disabled={busy} className="px-5 h-10 rounded-xl bg-primary/10 border border-primary/30 text-primary text-[11px] font-black uppercase tracking-widest hover:bg-primary/20 disabled:opacity-40">Open_Credit_Profile</button>}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Supply */}
         <Card icon={<TrendingUp size={14} />} title="Supply (earn yield)">
-          <p className="text-[11px] text-foreground/40">Deposit USDT into the pool. Earns interest from borrowers + routed DeepBook yield.</p>
+          <p className="text-[11px] text-foreground/40">Deposit USDC into the pool. Earns interest from borrowers + routed DeepBook yield.</p>
           <Field v={supplyAmt} set={setSupplyAmt} />
-          <Btn onClick={onSupply} disabled={!primaryCoin || usdt < Number(supplyAmt)}>Supply_USDT</Btn>
+          <Btn onClick={onSupply} disabled={!primaryCoin || usdt < Number(supplyAmt)}>Supply_USDC</Btn>
         </Card>
 
         {/* Over-collateralized borrow */}
         <Card icon={<Lock size={14} />} title="Borrow — collateralized">
-          <p className="text-[11px] text-foreground/40">Lock 150% USDT collateral, borrow instantly. No credit needed.</p>
+          <p className="text-[11px] text-foreground/40">Lock 150% USDC collateral, borrow instantly. No credit needed.</p>
           <Field v={borrowAmt} set={setBorrowAmt} />
-          <p className="text-[10px] text-foreground/30">Collateral required: {Math.ceil(Number(borrowAmt) * 1.5)} USDT · repay {(Number(borrowAmt) * 1.05).toFixed(2)}</p>
+          <p className="text-[10px] text-foreground/30">Collateral required: {Math.ceil(Number(borrowAmt) * 1.5)} USDC · repay {(Number(borrowAmt) * 1.05).toFixed(2)}</p>
           <Btn onClick={onBorrowCollat} disabled={!primaryCoin || usdt < Math.ceil(Number(borrowAmt) * 1.5)}>Borrow_Collateralized</Btn>
         </Card>
 

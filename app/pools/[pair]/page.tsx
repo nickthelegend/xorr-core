@@ -7,7 +7,7 @@ import { TokenIcon } from "@/components/token-icon"
 
 export default function PoolPairPage({ params }: { params: Promise<{ pair: string }> }) {
   const { pair } = use(params)
-  const symbol = (pair || "usdt").toUpperCase()
+  const symbol = (pair || "usdc").toUpperCase()
 
   return (
     <div className="flex-1 flex flex-col py-8 gap-8 w-full font-mono text-white">
@@ -17,7 +17,7 @@ export default function PoolPairPage({ params }: { params: Promise<{ pair: strin
 
       <div className="bg-[#0d0f14] border border-border/30 rounded-3xl p-10 flex flex-col items-center text-center gap-6 max-w-2xl mx-auto w-full">
         <div className="flex items-center gap-3">
-          <TokenIcon symbol={symbol === "USDT" ? "USDT" : symbol} size={36} className="flex-shrink-0" />
+          <TokenIcon symbol={symbol} size={36} className="flex-shrink-0" />
           <div className="text-left">
             <h1 className="text-2xl font-black uppercase tracking-tighter italic">{symbol} Pool</h1>
             <p className="text-[10px] text-foreground/40 uppercase tracking-widest">XORR Money Market</p>
@@ -25,7 +25,7 @@ export default function PoolPairPage({ params }: { params: Promise<{ pair: strin
         </div>
 
         <p className="text-sm text-foreground/50 leading-relaxed max-w-md">
-          XORR runs a single unified USDT lending pool on Sui. Supply, borrow, repay, and manage collateral —
+          XORR runs a single unified USDC lending pool on Sui. Supply, borrow, repay, and manage collateral —
           including unsecured TEE-backed credit — all happen in the money market.
         </p>
 

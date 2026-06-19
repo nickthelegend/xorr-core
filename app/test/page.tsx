@@ -13,10 +13,10 @@ const LS_PROFILE = "xorr_bnpl_profile"
 
 const IDS: [string, string][] = [
   ["Package", USDT_PACKAGE_ID],
-  ["USDT Faucet", USDT_FAUCET_ID],
+  ["USDC Faucet", USDT_FAUCET_ID],
   ["Lending Pool", BNPL_POOL_ID],
   ["BNPL Escrow", BNPL_ESCROW_ID],
-  ["USDT type", USDT_COIN_TYPE],
+  ["USDC type", USDT_COIN_TYPE],
 ]
 
 export default function DiagnosticsPage() {
@@ -46,7 +46,7 @@ export default function DiagnosticsPage() {
         setUsdt(Number(total) / 1e6)
         const pos = await readPositions(client, account.address)
         setPositions(pos)
-        addLog(`Wallet OK: ${coins.data.length} USDT coins, ${pos.length} positions`)
+        addLog(`Wallet OK: ${coins.data.length} USDC coins, ${pos.length} positions`)
         const id = typeof window !== "undefined" ? localStorage.getItem(LS_PROFILE) : null
         if (id) { setProfile(await readCreditProfile(client, id).catch(() => null)); addLog(`Profile read: ${id.slice(0, 10)}…`) }
       }
@@ -86,7 +86,7 @@ export default function DiagnosticsPage() {
           {/* Live metrics */}
           <div className="grid grid-cols-2 gap-4">
             {[
-              ["USDT Balance", account ? (usdt != null ? usdt.toLocaleString() : "…") : "—"],
+              ["USDC Balance", account ? (usdt != null ? usdt.toLocaleString() : "…") : "—"],
               ["Positions", account ? `${positions.length}` : "—"],
               ["Pool Available", pool ? pool.available.toLocaleString() : "…"],
               ["TEE Score", profile ? `${profile.score}` : "—"],

@@ -35,7 +35,7 @@ function CheckoutForm() {
     <form onSubmit={onPay} className="rounded-3xl p-5 bg-card/40 border border-border/40 backdrop-blur-xl space-y-4">
       <h1 className="text-lg font-semibold">Pay with XORR</h1>
       <div className="space-y-2">
-        <Label htmlFor="amount">Amount (USDT)</Label>
+        <Label htmlFor="amount">Amount (USDC)</Label>
         <Input id="amount" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
       </div>
       <div className="space-y-2">

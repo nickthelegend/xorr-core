@@ -19,7 +19,7 @@ export default function VaultsPage() {
         <div className="space-y-2">
           <h2 className="text-xl font-black uppercase tracking-tighter">Yield is managed in Lend / Borrow</h2>
           <p className="text-sm text-foreground/50 leading-relaxed max-w-md">
-            XORR consolidates yield into a single USDT lending pool on Sui. Supply USDT to earn interest from
+            XORR consolidates yield into a single USDC lending pool on Sui. Supply USDC to earn interest from
             borrowers and routed DeepBook yield — no separate vault deposits required.
           </p>
         </div>
@@ -35,9 +35,9 @@ export default function VaultsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto w-full">
         {[
-          { icon: TrendingUp, title: "Earn Yield", desc: "Supply USDT, earn from borrower interest." },
+          { icon: TrendingUp, title: "Earn Yield", desc: "Supply USDC, earn from borrower interest." },
           { icon: ShieldCheck, title: "Unlock Credit", desc: "Activity feeds your private TEE credit score." },
-          { icon: Coins, title: "Test It Free", desc: "Mint testnet USDT from the faucet." },
+          { icon: Coins, title: "Test It Free", desc: "Mint testnet USDC from the faucet." },
         ].map((c) => (
           <div key={c.title} className="bg-[#05080f]/40 border border-border/40 rounded-2xl p-6 flex flex-col gap-2">
             <c.icon className="text-primary" size={20} />

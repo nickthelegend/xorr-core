@@ -45,7 +45,7 @@ export default function FaucetPage() {
         arguments: [tx.object(USDT_FAUCET_ID), tx.pure.u64(raw)],
       })
       tx.transferObjects([coin], tx.pure.address(effectiveRecipient))
-      await runTx(`Mint ${parsed} USDT`, tx) // clickable Suiscan toast
+      await runTx(`Mint ${parsed} USDC`, tx) // clickable Suiscan toast
       setAmount("")
     } catch { /* toast already shown */ }
     finally { setBusy(false) }
@@ -63,7 +63,7 @@ export default function FaucetPage() {
         <div className="lg:col-span-7 bg-[#0d0f14] border border-border/30 rounded-3xl overflow-hidden">
           <div className="p-8 space-y-5">
             <div className="space-y-1">
-              <h3 className="text-xl font-black uppercase tracking-widest text-white">Mint_Test_USDT</h3>
+              <h3 className="text-xl font-black uppercase tracking-widest text-white">Mint_Test_USDC</h3>
               <p className="text-[10px] font-black uppercase tracking-widest text-foreground/30">
                 Sui_Move_Faucet // Gas_In_SUI
               </p>
@@ -102,21 +102,21 @@ export default function FaucetPage() {
                   placeholder="0"
                   className={`flex-1 bg-transparent text-4xl font-light tracking-tighter placeholder:text-foreground/20 focus:outline-none min-w-0 ${isOverMax ? "text-red-400" : "text-foreground/60"}`} />
                 <div className="flex items-center gap-2 bg-[#1a1d24] border border-border/40 rounded-xl px-3 py-2.5 min-w-[110px]">
-                  <TokenIcon symbol="USDT" size={20} className="flex-shrink-0" />
-                  <span className="text-sm font-semibold text-white">USDT</span>
+                  <TokenIcon symbol="USDC" size={20} className="flex-shrink-0" />
+                  <span className="text-sm font-semibold text-white">USDC</span>
                 </div>
               </div>
               <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
                 <span className="text-foreground/30">Max_Per_Request</span>
                 <button type="button" onClick={() => setAmount(FAUCET_MAX_USDT.toString())}
                   className="text-primary/70 hover:text-primary font-black transition-colors">
-                  {FAUCET_MAX_USDT.toLocaleString()} USDT
+                  {FAUCET_MAX_USDT.toLocaleString()} USDC
                 </button>
               </div>
               {isOverMax && (
                 <div className="flex items-center gap-2 text-red-400 text-[11px]">
                   <AlertTriangle size={12} />
-                  Max is {FAUCET_MAX_USDT.toLocaleString()} USDT per request
+                  Max is {FAUCET_MAX_USDT.toLocaleString()} USDC per request
                 </div>
               )}
             </div>
@@ -131,7 +131,7 @@ export default function FaucetPage() {
             >
               {status === "loading"
                 ? <><Loader2 size={16} className="animate-spin" /> MINTING_RESOURCES...</>
-                : `MINT_${amount ? Number(amount).toLocaleString() : "—"}_USDT`}
+                : `MINT_${amount ? Number(amount).toLocaleString() : "—"}_USDC`}
             </button>
 
           </div>
@@ -156,7 +156,7 @@ export default function FaucetPage() {
             <div className="space-y-3 font-mono text-[10px]">
               <div className="flex justify-between border-b border-primary/10 pb-2">
                 <span className="text-foreground/40">Asset</span>
-                <span className="text-white font-bold">USDT (test)</span>
+                <span className="text-white font-bold">USDC (test)</span>
               </div>
               <div className="flex justify-between border-b border-primary/10 pb-2">
                 <span className="text-foreground/40">Decimals</span>
@@ -164,7 +164,7 @@ export default function FaucetPage() {
               </div>
               <div className="flex justify-between border-b border-primary/10 pb-2 last:border-0">
                 <span className="text-foreground/40">Max per request</span>
-                <span className="text-primary font-bold">{FAUCET_MAX_USDT.toLocaleString()} USDT</span>
+                <span className="text-primary font-bold">{FAUCET_MAX_USDT.toLocaleString()} USDC</span>
               </div>
             </div>
           </div>

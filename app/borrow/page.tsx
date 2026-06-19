@@ -50,11 +50,11 @@ export default function BorrowPage() {
     try { await fn(); await refresh() } catch { /* toast shown */ } finally { setBusy(false) }
   }
 
-  const onFaucet = () => guard(async () => { await runTx("Mint 500 USDT", faucetTx(500)) })
+  const onFaucet = () => guard(async () => { await runTx("Mint 500 USDC", faucetTx(500)) })
 
   const onBorrow = () => guard(async () => {
     if (!primaryCoin || amt <= 0) return
-    const res = await runTx(`Borrow ${amt} USDT (collateralized)`, borrowCollateralizedTx(primaryCoin, amt, collateral, sender))
+    const res = await runTx(`Borrow ${amt} USDC (collateralized)`, borrowCollateralizedTx(primaryCoin, amt, collateral, sender))
     const id = findCreated(res, "::market::CollateralizedPosition<")
     const lockId = findCreated(res, "::collateral::CollateralLock<")
     if (id && lockId && typeof window !== "undefined") {
@@ -88,7 +88,7 @@ export default function BorrowPage() {
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-xl font-bold text-white">Collateralized Borrow</h3>
-                <p className="text-xs text-foreground/40 mt-1 leading-relaxed">Lock {Math.round(COLLAT_RATIO * 100)}% USDT collateral and borrow USDT instantly — settled on Sui.</p>
+                <p className="text-xs text-foreground/40 mt-1 leading-relaxed">Lock {Math.round(COLLAT_RATIO * 100)}% USDC collateral and borrow USDC instantly — settled on Sui.</p>
               </div>
               <button onClick={onFaucet} disabled={busy}
                 className="flex items-center gap-2 px-4 h-9 rounded-xl bg-white/5 border border-border/40 text-[10px] font-black uppercase tracking-widest hover:border-primary/40 disabled:opacity-40">
@@ -102,22 +102,22 @@ export default function BorrowPage() {
                 <input type="number" value={borrowAmount} onChange={(e) => setBorrowAmount(e.target.value)} placeholder="0"
                   className="flex-1 bg-transparent text-4xl font-light text-foreground/60 placeholder:text-foreground/20 focus:outline-none min-w-0" />
                 <div className="flex items-center gap-2 bg-[#1a1d24] border border-border/40 rounded-xl px-3 py-2.5 min-w-[110px]">
-                  <TokenIcon symbol="USDT" size={20} className="flex-shrink-0" />
-                  <span className="text-sm font-semibold text-white">USDT</span>
+                  <TokenIcon symbol="USDC" size={20} className="flex-shrink-0" />
+                  <span className="text-sm font-semibold text-white">USDC</span>
                 </div>
               </div>
             </div>
 
             <div className="bg-[#05080f]/60 border border-border/20 rounded-2xl p-5 space-y-2">
-              <label className="text-xs text-foreground/40">Collateral required (USDT)</label>
+              <label className="text-xs text-foreground/40">Collateral required (USDC)</label>
               <div className="flex items-center gap-3">
                 <span className="flex-1 text-4xl font-light text-foreground/60">{collateral.toLocaleString()}</span>
                 <div className="flex items-center gap-2 bg-[#1a1d24] border border-border/40 rounded-xl px-3 py-2.5 min-w-[110px]">
                   <Lock size={16} className="text-primary/70" />
-                  <span className="text-sm font-semibold text-white">USDT</span>
+                  <span className="text-sm font-semibold text-white">USDC</span>
                 </div>
               </div>
-              <p className="text-[10px] text-foreground/30">Your balance: {usdt.toLocaleString()} USDT · repay {repay} USDT (5% fee)</p>
+              <p className="text-[10px] text-foreground/30">Your balance: {usdt.toLocaleString()} USDC · repay {repay} USDC (5% fee)</p>
             </div>
 
             <div className="flex items-center gap-2 bg-[#05080f]/40 border border-border/20 rounded-xl px-4 py-3">
@@ -133,7 +133,7 @@ export default function BorrowPage() {
 
             <button onClick={onBorrow} disabled={busy || !primaryCoin || amt <= 0 || usdt < collateral}
               className="w-full py-4 rounded-2xl bg-primary text-black font-black text-sm uppercase tracking-tighter transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:bg-white/5 disabled:text-foreground/30 hover:scale-[1.01]">
-              {busy ? <><Loader2 size={16} className="animate-spin" /> Submitting…</> : usdt < collateral ? "Insufficient_USDT" : `Borrow_${amt}_USDT`}
+              {busy ? <><Loader2 size={16} className="animate-spin" /> Submitting…</> : usdt < collateral ? "Insufficient_USDC" : `Borrow_${amt}_USDC`}
             </button>
           </div>
         </div>
@@ -145,9 +145,9 @@ export default function BorrowPage() {
             </h3>
             <div className="space-y-4">
               {[
-                ["Borrow Amount", `${amt.toLocaleString()} USDT`],
-                ["Collateral Locked", `${collateral.toLocaleString()} USDT`],
-                ["Repay Total", `${repay} USDT`],
+                ["Borrow Amount", `${amt.toLocaleString()} USDC`],
+                ["Collateral Locked", `${collateral.toLocaleString()} USDC`],
+                ["Repay Total", `${repay} USDC`],
                 ["Collateral Ratio", `${Math.round(COLLAT_RATIO * 100)}%`],
               ].map(([label, value]) => (
                 <div key={label} className="flex justify-between items-center text-[11px] border-b border-border/10 pb-4 last:border-0 last:pb-0">

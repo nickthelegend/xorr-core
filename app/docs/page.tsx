@@ -95,7 +95,7 @@ export default function DocsPage() {
                 <h3 className="text-2xl font-black tracking-tight uppercase italic text-white">LENDING_POOL</h3>
               </div>
               <p className="text-white/60 text-xs leading-relaxed uppercase tracking-wider">
-                Liquidity providers supply USDT to a shared LendingPool object and receive a SupplyReceipt. Borrowers
+                Liquidity providers supply USDC to a shared LendingPool object and receive a SupplyReceipt. Borrowers
                 draw against the pool; interest and routed DeepBook yield accrue back to suppliers.
               </p>
 
@@ -127,7 +127,7 @@ export default function DocsPage() {
                 <h3 className="text-2xl font-black tracking-tight uppercase italic text-white">BORROW_LOAN_TO_VALUE</h3>
               </div>
               <p className="text-white/60 text-xs leading-relaxed uppercase tracking-wider">
-                Collateralized borrows lock 150% USDT collateral and mint a CollateralizedPosition. Unsecured borrows
+                Collateralized borrows lock 150% USDC collateral and mint a CollateralizedPosition. Unsecured borrows
                 require no collateral — they are gated by the TEE credit score and the profile&apos;s available credit line.
               </p>
               <div className="p-8 bg-primary/5 border border-primary/20 rounded-2xl">

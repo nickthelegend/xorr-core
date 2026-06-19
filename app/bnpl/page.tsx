@@ -19,7 +19,7 @@ import { suiscanTxUrl } from "@/lib/sui";
 const LS_PROFILE = "xorr_bnpl_profile";
 const LS_LOANS = "xorr_bnpl_loans";
 
-// Demo purchase: $30 item, fully collateralized with 50 USDT (over-collateralized core).
+// Demo purchase: $30 item, fully collateralized with 50 USDC (over-collateralized core).
 const BUY_AMOUNT = 30;
 const COLLATERAL = 50;
 const REPAY_AMOUNT = 31.5; // 30 + 5% interest
@@ -77,7 +77,7 @@ export default function BnplPage() {
     }
   };
 
-  const onFaucet = () => run("Mint 500 USDT", () => faucetTx(500));
+  const onFaucet = () => run("Mint 500 USDC", () => faucetTx(500));
 
   const onCreateProfile = () =>
     run("Open credit profile", openProfileTx, async (res) => {
@@ -138,7 +138,7 @@ export default function BnplPage() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Stat label="USDT_Balance" value={usdtBalance.toLocaleString()} />
+        <Stat label="USDC_Balance" value={usdtBalance.toLocaleString()} />
         <Stat label="Credit_Limit" value={profile ? `${profile.creditLimit}` : "—"} />
         <Stat label="Outstanding" value={profile ? `${profile.outstanding}` : "—"} />
         <Stat label="Available_Credit" value={profile ? `${profile.available}` : "—"} />
@@ -147,7 +147,7 @@ export default function BnplPage() {
       <div className="flex flex-wrap gap-3">
         <button onClick={onFaucet} disabled={!!busy}
           className="px-5 h-11 rounded-xl bg-white/5 border border-border/40 text-[11px] font-black uppercase tracking-widest hover:border-primary/40 disabled:opacity-40 flex items-center gap-2">
-          {busy === "Mint 500 USDT" ? <Loader2 size={14} className="animate-spin" /> : <Wallet size={14} />} Get_500_USDT
+          {busy === "Mint 500 USDC" ? <Loader2 size={14} className="animate-spin" /> : <Wallet size={14} />} Get_500_USDC
         </button>
 
         {!profileId && (
@@ -160,13 +160,13 @@ export default function BnplPage() {
         {profileId && (
           <button onClick={onBuyNow} disabled={!!busy || usdtBalance < COLLATERAL}
             className="px-5 h-11 rounded-xl bg-primary text-black text-[11px] font-black uppercase tracking-widest hover:scale-[1.02] disabled:opacity-40 disabled:bg-white/5 disabled:text-foreground/30 flex items-center gap-2">
-            {busy === "Buy Now ($30)" ? <Loader2 size={14} className="animate-spin" /> : <CreditCard size={14} />} Buy_Now_$30 (lock {COLLATERAL}_USDT)
+            {busy === "Buy Now ($30)" ? <Loader2 size={14} className="animate-spin" /> : <CreditCard size={14} />} Buy_Now_$30 (lock {COLLATERAL}_USDC)
           </button>
         )}
       </div>
 
       {profileId && usdtBalance < COLLATERAL && (
-        <p className="text-[11px] text-amber-400/80 flex items-center gap-2"><AlertTriangle size={12} /> Need ≥ {COLLATERAL} USDT to collateralize — mint some first.</p>
+        <p className="text-[11px] text-amber-400/80 flex items-center gap-2"><AlertTriangle size={12} /> Need ≥ {COLLATERAL} USDC to collateralize — mint some first.</p>
       )}
 
       {/* Active loans */}
@@ -184,7 +184,7 @@ export default function BnplPage() {
                 </button>
                 <button onClick={() => onRepay(l)} disabled={!!busy || usdtBalance < REPAY_AMOUNT}
                   className="px-4 h-9 rounded-lg bg-primary/10 border border-primary/30 text-primary text-[10px] font-black uppercase tracking-widest hover:bg-primary/20 disabled:opacity-40 flex items-center gap-2">
-                  {busy === "Repay loan" ? <Loader2 size={12} className="animate-spin" /> : null} Repay_{REPAY_AMOUNT}_USDT
+                  {busy === "Repay loan" ? <Loader2 size={12} className="animate-spin" /> : null} Repay_{REPAY_AMOUNT}_USDC
                 </button>
               </div>
             </div>
@@ -206,7 +206,7 @@ export default function BnplPage() {
       )}
 
       <p className="text-[10px] text-foreground/30 leading-relaxed max-w-2xl">
-        Over-collateralized core: lock {COLLATERAL} USDT, the pool fronts your ${BUY_AMOUNT} purchase to the merchant now,
+        Over-collateralized core: lock {COLLATERAL} USDC, the pool fronts your ${BUY_AMOUNT} purchase to the merchant now,
         and each repayment grows your credit limit. Yield routed from your collateral can auto-repay the loan
         (&ldquo;Pay Never&rdquo;). Credit scoring runs privately in the TEE.
       </p>

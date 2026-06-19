@@ -74,10 +74,10 @@ export default function CreditPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          ["Credit_Limit", profile ? `${profile.creditLimit} USDT` : "—"],
-          ["Available", profile ? `${profile.available} USDT` : "—"],
-          ["Outstanding", profile ? `${profile.outstanding} USDT` : "—"],
-          ["Repaid_Total", profile ? `${profile.repaidTotal} USDT` : "—"],
+          ["Credit_Limit", profile ? `${profile.creditLimit} USDC` : "—"],
+          ["Available", profile ? `${profile.available} USDC` : "—"],
+          ["Outstanding", profile ? `${profile.outstanding} USDC` : "—"],
+          ["Repaid_Total", profile ? `${profile.repaidTotal} USDC` : "—"],
         ].map(([l, v]) => (
           <div key={l} className="bg-[#05080f]/60 border border-border/20 rounded-2xl p-5 flex flex-col gap-1">
             <span className="text-[10px] font-black uppercase tracking-widest text-foreground/40">{l}</span>
@@ -146,7 +146,7 @@ export default function CreditPage() {
                   <span className="text-xs text-white font-bold">{l.label}</span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-xs text-white tabular-nums">{l.amount.toLocaleString()} USDT</span>
+                  <span className="text-xs text-white tabular-nums">{l.amount.toLocaleString()} USDC</span>
                   <a href={`https://suiscan.xyz/${SUI_NETWORK}/object/${l.id}`} target="_blank" rel="noopener noreferrer"
                     className="text-[10px] text-primary/60 hover:text-primary underline">view</a>
                 </div>

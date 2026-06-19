@@ -55,6 +55,9 @@ export default function PayPage() {
     bill?.metadata?.sui_address ||
     SETTLE_ADDRESS
   const recipientValid = !!recipient && isValidSuiAddress(recipient)
+  // Prefer the merchant's on-chain MerchantEscrow object if the bill carries one.
+  const escrowId = bill?.merchant?.escrow_contract
+  const settleViaEscrow = !!escrowId && isValidSuiAddress(escrowId)
   const configured = USDT_PACKAGE_ID !== ""
 
   useEffect(() => {
@@ -83,14 +86,25 @@ export default function PayPage() {
   }, [account, client])
 
   const handlePay = async () => {
-    if (!account || !primaryCoin || !recipientValid || billAmount <= 0) return
+    if (!account || !primaryCoin || !(settleViaEscrow || recipientValid) || billAmount <= 0) return
     setPaying(true)
     try {
       const raw = BigInt(Math.floor(billAmount * 10 ** USDT_DECIMALS))
       const tx = new Transaction()
       const [pay] = tx.splitCoins(tx.object(primaryCoin), [tx.pure.u64(raw)])
-      tx.transferObjects([pay], tx.pure.address(recipient))
-      const res = await runTx(`Pay ${billAmount} USDT`, tx)
+      const orderBytes = Array.from(new TextEncoder().encode(hash ?? "xorr-bill"))
+      if (settleViaEscrow) {
+        // Proper escrow settlement: pay into the merchant's on-chain MerchantEscrow.
+        tx.moveCall({
+          target: `${USDT_PACKAGE_ID}::merchant_escrow::settle_payment`,
+          typeArguments: [USDT_COIN_TYPE],
+          arguments: [tx.object(escrowId!), pay, tx.pure.vector("u8", orderBytes)],
+        })
+      } else {
+        // Fallback: direct transfer to the merchant's Sui address.
+        tx.transferObjects([pay], tx.pure.address(recipient))
+      }
+      const res = await runTx(`Pay ${billAmount} USDC`, tx)
       setDigest(res.digest)
       setSuccess(true)
       // Best-effort backend sync (non-blocking, ignore failures).
@@ -136,14 +150,14 @@ export default function PayPage() {
         <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center"><CheckCircle2 className="w-10 h-10 text-primary" /></div>
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-black uppercase tracking-tighter">Payment_Settled</h1>
-          <p className="text-[10px] text-white/40 uppercase">Settled in USDT on XORR · Sui {SUI_NETWORK}.</p>
+          <p className="text-[10px] text-white/40 uppercase">Settled in USDC on XORR · Sui {SUI_NETWORK}.</p>
         </div>
         <div className="w-full bg-white/5 border border-white/10 p-4 rounded flex flex-col gap-3">
           <div className="flex justify-between items-center text-[10px] uppercase font-bold">
             <span className="text-white/40">Merchant</span><span className="text-white font-black">{bill.merchant?.name || "Merchant"}</span>
           </div>
           <div className="flex justify-between items-center text-[10px] uppercase font-bold">
-            <span className="text-white/40">Amount</span><span className="text-primary font-black">{billAmount} USDT</span>
+            <span className="text-white/40">Amount</span><span className="text-primary font-black">{billAmount} USDC</span>
           </div>
         </div>
         <div className="flex flex-col w-full gap-2">
@@ -162,7 +176,7 @@ export default function PayPage() {
   }
 
   const alreadyPaid = bill.status === "paid"
-  const canPay = !!account && !!primaryCoin && recipientValid && configured && billAmount > 0 && usdt >= billAmount && !paying && !alreadyPaid
+  const canPay = !!account && !!primaryCoin && (settleViaEscrow || recipientValid) && configured && billAmount > 0 && usdt >= billAmount && !paying && !alreadyPaid
 
   return (
     <div className="max-w-md mx-auto mt-12 flex flex-col gap-8 text-white font-mono">
@@ -182,14 +196,14 @@ export default function PayPage() {
           </div>
           <div className="flex flex-col items-end">
             <span className="text-lg font-black text-white">{billAmount}</span>
-            <span className="text-[10px] text-white/40 font-bold uppercase">USDT</span>
+            <span className="text-[10px] text-white/40 font-bold uppercase">USDC</span>
           </div>
         </div>
 
         <div className="p-6 flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <span className="text-[10px] text-white/40 uppercase font-bold tracking-widest italic">Description</span>
-            <p className="text-xs text-white/80 leading-relaxed font-medium">{bill.description || "Payment settled in USDT via XORR on Sui."}</p>
+            <p className="text-xs text-white/80 leading-relaxed font-medium">{bill.description || "Payment settled in USDC via XORR on Sui."}</p>
           </div>
 
           <div className="bg-primary/5 border border-primary/20 rounded p-4 flex items-center justify-between">
@@ -197,7 +211,7 @@ export default function PayPage() {
               <ShieldCheck className="w-5 h-5 text-primary" />
               <div className="flex flex-col">
                 <span className="text-[10px] font-bold text-white uppercase tracking-wide">Pay_With_XORR</span>
-                <span className="text-[9px] text-primary font-bold uppercase tracking-widest">Your USDT: {usdt.toLocaleString()}</span>
+                <span className="text-[9px] text-primary font-bold uppercase tracking-widest">Your USDC: {usdt.toLocaleString()}</span>
               </div>
             </div>
             <Zap className="w-4 h-4 text-primary animate-pulse" />
@@ -208,14 +222,14 @@ export default function PayPage() {
               <Wallet size={14} /> Connect your Sui wallet to pay
             </div>
           )}
-          {account && !recipientValid && (
+          {account && !settleViaEscrow && !recipientValid && (
             <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded px-4 py-3 text-[10px] uppercase tracking-wide font-bold text-amber-400/90">
               <AlertCircle size={14} className="flex-shrink-0" /> No Sui settlement address on this bill. Set NEXT_PUBLIC_XORR_MERCHANT_ADDRESS or a merchant sui_address.
             </div>
           )}
           {account && recipientValid && usdt < billAmount && (
             <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded px-4 py-3 text-[10px] uppercase tracking-wide font-bold text-amber-400/90">
-              <AlertCircle size={14} className="flex-shrink-0" /> Insufficient USDT — get test USDT from the <Link href="/faucet" className="underline">faucet</Link>.
+              <AlertCircle size={14} className="flex-shrink-0" /> Insufficient USDC — get test USDC from the <Link href="/faucet" className="underline">faucet</Link>.
             </div>
           )}
 
@@ -223,10 +237,10 @@ export default function PayPage() {
             <button onClick={handlePay} disabled={!canPay}
               className={`w-full py-4 rounded font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${canPay ? "bg-primary text-black hover:scale-[1.02]" : "bg-zinc-800 text-white/20 cursor-not-allowed"}`}>
               {paying ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
-              {paying ? "Settling…" : alreadyPaid ? "Already_Settled" : !account ? "Wallet_Needs_Link" : `Pay_${billAmount}_USDT`}
+              {paying ? "Settling…" : alreadyPaid ? "Already_Settled" : !account ? "Wallet_Needs_Link" : `Pay_${billAmount}_USDC`}
             </button>
             <p className="text-[8px] text-center text-white/20 uppercase font-bold tracking-[0.1em] leading-relaxed">
-              By paying, you transfer {billAmount} USDT to the merchant on Sui {SUI_NETWORK}. The transaction is signed by your wallet (gas in SUI).
+              By paying, you transfer {billAmount} USDC to the merchant on Sui {SUI_NETWORK}. The transaction is signed by your wallet (gas in SUI).
             </p>
           </div>
         </div>

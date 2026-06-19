@@ -6,6 +6,10 @@ import type { SuiJsonRpcClient } from "@mysten/sui/jsonRpc";
 import { USDT_PACKAGE_ID, USDT_FAUCET_ID, USDT_DECIMALS, CONFIDENTIAL_PKG, ATTESTED_ORACLE_ID } from "./sui";
 
 const PKG = USDT_PACKAGE_ID;
+// Functions ADDED by package upgrades (e.g. lending_pool::withdraw_amount) live
+// at the latest version id; types + v1 functions stay resolvable at PKG.
+const LATEST_PKG =
+  process.env.NEXT_PUBLIC_LATEST_PKG ?? "0xffbc99cca6437bcd05e23e8bc290b968b83074ab36da6ad1938b5b96517b8310";
 const T = `${PKG}::usdc::USDC`;
 const SCALE = 10 ** USDT_DECIMALS;
 
@@ -113,6 +117,54 @@ export async function readCreditProfile(client: SuiJsonRpcClient, profileId: str
 
 /** USDC coin type, for client.getCoins({ owner, coinType }). */
 export const USDT_COIN_TYPE = T;
+
+export type LoanView = {
+  outstanding: number;
+  principal: number;
+  principalRepaid: number;
+  dueEpoch: number;
+  openedEpoch: number;
+  status: number; // 0 active, 1 repaid, 2 defaulted
+  collateralLockId: string;
+};
+
+/** Read a bnpl::Loan object's fields (outstanding, due epoch, status, …). */
+export async function readLoan(client: SuiJsonRpcClient, loanId: string): Promise<LoanView | null> {
+  const obj = await client.getObject({ id: loanId, options: { showContent: true } });
+  const c = obj.data?.content;
+  if (!c || c.dataType !== "moveObject") return null;
+  const f = c.fields as Record<string, string>;
+  return {
+    outstanding: Number(f.outstanding) / SCALE,
+    principal: Number(f.principal) / SCALE,
+    principalRepaid: Number(f.principal_repaid) / SCALE,
+    dueEpoch: Number(f.due_epoch),
+    openedEpoch: Number(f.opened_epoch),
+    status: Number(f.status),
+    collateralLockId: String(f.collateral_lock_id ?? ""),
+  };
+}
+
+/** Repay a loan using the caller's lending-pool position: withdraw the
+ * SupplyReceipt for USDC and route it straight into the loan. Leftover (the
+ * yield earned beyond the debt) is returned to the sender. One transaction. */
+export function repayFromLpTx(p: { loanId: string; profileId: string; receiptId: string; amountUsdt: number; sender: string }): Transaction {
+  const tx = new Transaction();
+  // Partial withdraw — pull just enough liquidity to cover the loan, leaving the
+  // rest of the LP position intact (full withdraw would fail while funds are lent).
+  const coin = tx.moveCall({
+    target: `${LATEST_PKG}::lending_pool::withdraw_amount`,
+    typeArguments: [T],
+    arguments: [tx.object(BNPL_POOL_ID), tx.object(p.receiptId), tx.pure.u64(u64(p.amountUsdt))],
+  });
+  const refund = tx.moveCall({
+    target: `${PKG}::bnpl::repay`,
+    typeArguments: [T, T],
+    arguments: [tx.object(p.loanId), tx.object(BNPL_POOL_ID), tx.object(p.profileId), coin],
+  });
+  tx.transferObjects([refund], p.sender);
+  return tx;
+}
 
 const hexToBytes = (hex: string): number[] => {
   const clean = hex.startsWith("0x") ? hex.slice(2) : hex;

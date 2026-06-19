@@ -28,7 +28,7 @@ const ticket = tx.moveCall({
 });
 const receipt = tx.upgrade({ modules, dependencies, package: CURRENT_PKG, ticket });
 tx.moveCall({ target: "0x2::package::commit_upgrade", arguments: [cap, receipt] });
-tx.setGasBudget(500000000);
+tx.setGasBudget(180000000);
 
 const res = await client.signAndExecuteTransaction({ signer: kp, transaction: tx, options: { showEffects: true, showObjectChanges: true } });
 await client.waitForTransaction({ digest: res.digest });

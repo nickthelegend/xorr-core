@@ -3,7 +3,7 @@
 // scripts/e2e-bnpl.mjs.
 import { Transaction } from "@mysten/sui/transactions";
 import type { SuiJsonRpcClient } from "@mysten/sui/jsonRpc";
-import { USDT_PACKAGE_ID, USDT_FAUCET_ID, USDT_DECIMALS } from "./sui";
+import { USDT_PACKAGE_ID, USDT_FAUCET_ID, USDT_DECIMALS, CREDIT_ORACLE_ID } from "./sui";
 
 const PKG = USDT_PACKAGE_ID;
 const T = `${PKG}::usdc::USDC`;
@@ -111,5 +111,39 @@ export async function readCreditProfile(client: SuiJsonRpcClient, profileId: str
   };
 }
 
-/** USDT coin type, for client.getCoins({ owner, coinType }). */
+/** USDC coin type, for client.getCoins({ owner, coinType }). */
 export const USDT_COIN_TYPE = T;
+
+const hexToBytes = (hex: string): number[] => {
+  const clean = hex.startsWith("0x") ? hex.slice(2) : hex;
+  const out: number[] = [];
+  for (let i = 0; i < clean.length; i += 2) out.push(parseInt(clean.substr(i, 2), 16));
+  return out;
+};
+
+/** Verify a TEE-signed credit attestation on-chain and apply the score to the
+ * borrower's CreditProfile (unlocks unsecured borrowing). All numeric args are
+ * passed verbatim — they must match the exact values the enclave signed. */
+export function applyTeeScoreTx(p: {
+  profileId: string;
+  score: number;
+  approvedLimit: number; // raw u64 (6-dp units), as signed by the enclave
+  nonce: number;
+  timestampMs: number;
+  signatureHex: string;
+}): Transaction {
+  const tx = new Transaction();
+  tx.moveCall({
+    target: `${PKG}::confidential_credit::verify_and_apply_score`,
+    arguments: [
+      tx.object(CREDIT_ORACLE_ID),
+      tx.object(p.profileId),
+      tx.pure.u64(BigInt(p.score)),
+      tx.pure.u64(BigInt(p.approvedLimit)),
+      tx.pure.u64(BigInt(p.nonce)),
+      tx.pure.u64(BigInt(p.timestampMs)),
+      tx.pure.vector("u8", hexToBytes(p.signatureHex)),
+    ],
+  });
+  return tx;
+}

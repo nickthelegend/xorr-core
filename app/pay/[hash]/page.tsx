@@ -63,10 +63,30 @@ export default function PayPage() {
   useEffect(() => {
     if (!hash) { setFetching(false); return }
     let active = true
+    // Mongo-free fallback: a /pay/<anything>?amount=&escrow=&to=&merchant=&desc=
+    // URL settles directly with no DB bill record. Used by the demo shop and any
+    // time the merchant DB is unavailable, so checkout never hard-depends on Mongo.
+    const fromQuery = (): Bill | null => {
+      if (typeof window === "undefined") return null
+      const sp = new URLSearchParams(window.location.search)
+      const amt = sp.get("amount")
+      if (!amt) return null
+      return {
+        amount: Number(amt),
+        asset: "USDC",
+        description: sp.get("desc") || "Direct payment via XORR",
+        status: "pending",
+        merchant: {
+          name: sp.get("merchant") || "Merchant",
+          escrow_contract: sp.get("escrow") || undefined,
+          sui_address: sp.get("to") || undefined,
+        },
+      }
+    }
     fetch(`/api/bills/${hash}`)
       .then((r) => r.json())
-      .then((d) => { if (active) { if (d && !d.error) setBill(d); else setBill(null) } })
-      .catch(() => { if (active) setBill(null) })
+      .then((d) => { if (active) setBill(d && !d.error ? d : fromQuery()) })
+      .catch(() => { if (active) setBill(fromQuery()) })
       .finally(() => { if (active) setFetching(false) })
     return () => { active = false }
   }, [hash])
@@ -107,6 +127,13 @@ export default function PayPage() {
       const res = await runTx(`Pay ${billAmount} USDC`, tx)
       setDigest(res.digest)
       setSuccess(true)
+      // Notify the opener (e.g. a merchant/shop checkout popup) that we settled.
+      if (typeof window !== "undefined" && window.opener) {
+        window.opener.postMessage(
+          { type: "POLARIS_PAYMENT_RESULT", success: true, txHash: res.digest, amount: billAmount, paymentMode: "bnpl" },
+          "*",
+        )
+      }
       // Best-effort backend sync (non-blocking, ignore failures).
       try {
         await fetch("/api/bills/pay", {

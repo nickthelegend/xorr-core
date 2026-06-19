@@ -28,6 +28,10 @@ export const USDT_PACKAGE_ID =
 export const USDT_FAUCET_ID =
   process.env.NEXT_PUBLIC_USDT_FAUCET_ID ?? "0xf532e1e7f8c83d2be47a68efc6b37bde7f436b76682885e9b3dd50380e6a1d6f";
 
+/** Shared `confidential_credit::CreditOracle` object id (pins the enclave key). */
+export const CREDIT_ORACLE_ID =
+  process.env.NEXT_PUBLIC_CREDIT_ORACLE_ID ?? "0xe4cf3ea3060adab8a42406a7344471eb76002e93c5bb14578e35c578223b7e88";
+
 export const USDT_DECIMALS = 6;
 
 /** Matches `usdt::MAX_FAUCET_MINT` (10,000 USDT). */

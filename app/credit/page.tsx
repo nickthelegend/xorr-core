@@ -6,9 +6,11 @@ import {
   ShieldCheck, Lock, Loader2, Wallet, CreditCard, TrendingUp, RefreshCw, ArrowUpRight,
 } from "lucide-react"
 import { useCurrentAccount, useSuiClient } from "@mysten/dapp-kit"
-import { readCreditProfile, type CreditProfileView } from "@/lib/bnpl"
+import { toast } from "sonner"
+import { readCreditProfile, openProfileTx, applyTeeScoreTx, type CreditProfileView } from "@/lib/bnpl"
 import { readPositions, type OnChainPosition } from "@/lib/positions"
 import { SUI_NETWORK } from "@/lib/sui"
+import { useTx, findCreated } from "@/lib/use-tx"
 
 const LS_PROFILE = "xorr_bnpl_profile"
 const MIN_SCORE = 600
@@ -16,11 +18,13 @@ const MIN_SCORE = 600
 export default function CreditPage() {
   const account = useCurrentAccount()
   const client = useSuiClient()
+  const runTx = useTx()
 
   const [profile, setProfile] = useState<CreditProfileView | null>(null)
   const [profileId, setProfileId] = useState<string | null>(null)
   const [loans, setLoans] = useState<OnChainPosition[]>([])
   const [loading, setLoading] = useState(false)
+  const [working, setWorking] = useState(false)
 
   const refresh = useCallback(async () => {
     if (!account) return
@@ -40,6 +44,40 @@ export default function CreditPage() {
   }, [account, client])
 
   useEffect(() => { refresh() }, [refresh])
+
+  // Open (share) a CreditProfile for the connected wallet, then remember its id.
+  const openProfile = async () => {
+    setWorking(true)
+    try {
+      const res = await runTx("Open credit profile", openProfileTx())
+      const id = findCreated(res, "::credit::CreditProfile")
+      if (id) { localStorage.setItem(LS_PROFILE, id); setProfileId(id); await refresh() }
+    } catch { /* toast shown by runTx */ } finally { setWorking(false) }
+  }
+
+  // Ask the credit enclave to sign a score, then verify+apply it on-chain.
+  const requestTeeScore = async () => {
+    if (!profileId || !account) return
+    setWorking(true)
+    try {
+      const r = await fetch("/api/credit-score", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ borrower: account.address, repaidTotal: profile?.repaidTotal ?? 0 }),
+      })
+      const data = await r.json()
+      if (!r.ok || data.error) { toast.error(data.error || "Enclave request failed"); return }
+      await runTx("Apply TEE credit score", applyTeeScoreTx({
+        profileId,
+        score: data.score,
+        approvedLimit: data.approvedLimit,
+        nonce: data.nonce,
+        timestampMs: data.timestampMs,
+        signatureHex: data.signatureHex,
+      }))
+      await refresh()
+    } catch { /* toast shown by runTx */ } finally { setWorking(false) }
+  }
 
   if (!account) {
     return (
@@ -105,7 +143,7 @@ export default function CreditPage() {
                 <span className="text-purple-400 text-xl font-black tracking-tighter">{score}</span>
                 <span className="text-[9px] text-purple-400/50 ml-1">/ 850</span>
               </div>
-              <div className="flex-1 min-w-[180px]">
+              <div className="flex-1 min-w-[120px]">
                 <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                   <div className="h-full bg-purple-400 transition-all duration-700" style={{ width: `${scorePct}%` }} />
                 </div>
@@ -113,11 +151,20 @@ export default function CreditPage() {
               <span className={`text-[10px] uppercase font-bold ${score >= MIN_SCORE ? "text-green-400" : "text-amber-400"}`}>
                 {score >= MIN_SCORE ? "Unsecured borrowing unlocked" : `Needs ≥ ${MIN_SCORE} for unsecured`}
               </span>
+              <button onClick={requestTeeScore} disabled={working}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-200 text-[10px] font-black uppercase tracking-widest hover:bg-purple-500/30 disabled:opacity-40 transition-all">
+                {working ? <Loader2 className="size-3 animate-spin" /> : <Lock className="size-3" />}
+                {working ? "Signing in enclave…" : score > 0 ? "Refresh TEE Score" : "Request TEE Score"}
+              </button>
             </div>
           ) : (
             <div className="flex items-center gap-3 flex-wrap">
-              <p className="text-[11px] text-amber-400/80">No credit profile yet — open one in the money market to start building your score.</p>
-              <Link href="/lend-borrow" className="px-4 py-2 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-200 text-[10px] font-black uppercase tracking-widest hover:bg-purple-500/30">Open Credit Profile</Link>
+              <p className="text-[11px] text-amber-400/80">No credit profile yet — open one to start building your TEE-attested score.</p>
+              <button onClick={openProfile} disabled={working}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-200 text-[10px] font-black uppercase tracking-widest hover:bg-purple-500/30 disabled:opacity-40 transition-all">
+                {working ? <Loader2 className="size-3 animate-spin" /> : <ShieldCheck className="size-3" />}
+                {working ? "Opening…" : "Open Credit Profile"}
+              </button>
             </div>
           )}
           {profileId && (

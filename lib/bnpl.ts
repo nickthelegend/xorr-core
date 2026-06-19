@@ -44,6 +44,7 @@ export function openPurchaseTx(p: {
   collateralUsdt: number;
   termEpochs?: number;
   orderId?: string;
+  escrowId?: string; // merchant's MerchantEscrow<USDC>; defaults to the demo escrow
 }): Transaction {
   const tx = new Transaction();
   const [collat] = tx.splitCoins(tx.object(p.primaryCoinId), [tx.pure.u64(u64(p.collateralUsdt))]);
@@ -53,7 +54,7 @@ export function openPurchaseTx(p: {
     arguments: [
       tx.object(BNPL_POOL_ID),
       tx.object(p.profileId),
-      tx.object(BNPL_ESCROW_ID),
+      tx.object(p.escrowId ?? BNPL_ESCROW_ID),
       collat,
       tx.pure.u64(u64(p.amountUsdt)),
       tx.pure.u64(BigInt(p.termEpochs ?? 30)),

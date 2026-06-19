@@ -3,7 +3,7 @@
 // scripts/e2e-bnpl.mjs.
 import { Transaction } from "@mysten/sui/transactions";
 import type { SuiJsonRpcClient } from "@mysten/sui/jsonRpc";
-import { USDT_PACKAGE_ID, USDT_FAUCET_ID, USDT_DECIMALS, CREDIT_ORACLE_ID } from "./sui";
+import { USDT_PACKAGE_ID, USDT_FAUCET_ID, USDT_DECIMALS, CONFIDENTIAL_PKG, ATTESTED_ORACLE_ID } from "./sui";
 
 const PKG = USDT_PACKAGE_ID;
 const T = `${PKG}::usdc::USDC`;
@@ -122,8 +122,10 @@ const hexToBytes = (hex: string): number[] => {
 };
 
 /** Verify a TEE-signed credit attestation on-chain and apply the score to the
- * borrower's CreditProfile (unlocks unsecured borrowing). All numeric args are
- * passed verbatim — they must match the exact values the enclave signed. */
+ * borrower's CreditProfile (unlocks unsecured borrowing). Uses the ATTESTED
+ * oracle — the enclave key was bound to a verified on-chain AWS Nitro attestation
+ * (PCR-gated), so the signature is provably from the audited enclave image. All
+ * numeric args are passed verbatim — they must match what the enclave signed. */
 export function applyTeeScoreTx(p: {
   profileId: string;
   score: number;
@@ -134,9 +136,9 @@ export function applyTeeScoreTx(p: {
 }): Transaction {
   const tx = new Transaction();
   tx.moveCall({
-    target: `${PKG}::confidential_credit::verify_and_apply_score`,
+    target: `${CONFIDENTIAL_PKG}::confidential_credit::verify_and_apply_score_attested`,
     arguments: [
-      tx.object(CREDIT_ORACLE_ID),
+      tx.object(ATTESTED_ORACLE_ID),
       tx.object(p.profileId),
       tx.pure.u64(BigInt(p.score)),
       tx.pure.u64(BigInt(p.approvedLimit)),

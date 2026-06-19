@@ -32,6 +32,16 @@ export const USDT_FAUCET_ID =
 export const CREDIT_ORACLE_ID =
   process.env.NEXT_PUBLIC_CREDIT_ORACLE_ID ?? "0xe4cf3ea3060adab8a42406a7344471eb76002e93c5bb14578e35c578223b7e88";
 
+/** Upgraded package version holding the Nitro-attestation functions (types stay
+ * at USDT_PACKAGE_ID; this id is only for calling the new `_attested` functions). */
+export const CONFIDENTIAL_PKG =
+  process.env.NEXT_PUBLIC_CONFIDENTIAL_PKG ?? "0xd74650b76c2a22ad331b7c55b96d72449145ecd6ff8a3b278047c7a76ed577ac";
+
+/** `AttestedOracle`: enclave key bound to a verified on-chain AWS Nitro attestation
+ * (PCR-gated). Trust is in the audited enclave image, not an admin key. */
+export const ATTESTED_ORACLE_ID =
+  process.env.NEXT_PUBLIC_ATTESTED_ORACLE_ID ?? "0xe8d3e3baf92ad7ab86d57ae55aedaf2be15fdff6000881f85aa0c489cc6753a8";
+
 export const USDT_DECIMALS = 6;
 
 /** Matches `usdt::MAX_FAUCET_MINT` (10,000 USDT). */

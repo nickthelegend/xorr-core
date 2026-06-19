@@ -68,8 +68,11 @@ export default function Page() {
   if (!account) {
     return (
       <div className="font-mono relative">
-        <div className="pointer-events-none absolute -top-32 left-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[120px]" />
-        <div className="pointer-events-none absolute top-40 right-10 h-64 w-64 rounded-full bg-purple-500/10 blur-[120px]" />
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -top-24 left-1/4 h-80 w-80 rounded-full bg-primary/20 blur-[130px]" />
+          <div className="absolute top-32 right-0 h-72 w-72 rounded-full bg-purple-500/15 blur-[130px]" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(166,242,74,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(166,242,74,0.045)_1px,transparent_1px)] bg-[size:46px_46px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_72%)]" />
+        </div>
 
         <div className="relative grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[72dvh] py-10">
           {/* Pitch + connect CTA */}
@@ -79,8 +82,9 @@ export default function Page() {
             </div>
 
             <div className="space-y-5">
-              <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic leading-[0.92] text-foreground">
-                Buy Now,<br /><span className="text-primary">Pay Never.</span>
+              <h1 className="text-6xl md:text-8xl font-black tracking-[-0.04em] uppercase leading-[0.88] text-foreground">
+                Buy Now,<br />
+                <span className="bg-gradient-to-r from-primary via-primary to-emerald-300 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(166,242,74,0.35)]">Pay Never.</span>
               </h1>
               <p className="text-sm md:text-base text-foreground/50 leading-relaxed max-w-md">
                 Private consumer credit on Sui. Check out with{" "}
@@ -99,13 +103,13 @@ export default function Page() {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <div className="[&_button]:h-12 [&_button]:px-6 [&_button]:text-xs [&_button]:rounded-xl [&_button]:shadow-[0_0_25px_rgba(166,242,74,0.25)]">
+            <div className="space-y-3">
+              <div className="[&_button]:h-14 [&_button]:px-8 [&_button]:text-sm [&_button]:rounded-2xl [&_button]:font-black [&_button]:tracking-widest [&_button]:shadow-[0_0_40px_-4px_rgba(166,242,74,0.55)] hover:[&_button]:scale-[1.03] [&_button]:transition-transform inline-block">
                 <ConnectWalletButton />
               </div>
-              <span className="flex items-center gap-2 text-[10px] text-foreground/30 uppercase tracking-widest">
-                <Wallet size={12} /> Connect your Sui wallet to enter
-              </span>
+              <p className="flex items-center gap-2 text-[10px] text-foreground/35 uppercase tracking-[0.15em]">
+                <Wallet size={12} className="text-primary/50" /> No email · no credit check · just your Sui wallet
+              </p>
             </div>
 
             {/* Public, wallet-less stats */}
@@ -128,20 +132,21 @@ export default function Page() {
           {/* Feature pillars */}
           <div className="space-y-4">
             {[
-              { icon: CreditCard, title: "Buy Now, Pay Never", tag: "BNPL", desc: "Checkout with on-chain credit. Collateral is deployed to earn yield that auto-repays your loan." },
-              { icon: TrendingUp, title: "Lend & Borrow", tag: "Markets", desc: "Supply USDC to earn, or borrow over- and under-collateralized against your credit line." },
-              { icon: Lock, title: "Private TEE Credit", tag: "Confidential", desc: "Your score is computed inside a confidential enclave and attested on-chain — data never leaves the TEE." },
+              { icon: CreditCard, title: "Buy Now, Pay Never", tag: "BNPL", href: "/bnpl", desc: "Checkout with on-chain credit. Collateral earns yield that auto-repays your loan." },
+              { icon: TrendingUp, title: "Lend & Borrow", tag: "Markets", href: "/lend", desc: "Supply USDC / DUSDC / DEEP for DeepBook yield, or borrow against collateral." },
+              { icon: Lock, title: "Private TEE Credit", tag: "Confidential", href: "/credit", desc: "Score computed in a confidential enclave and attested on-chain — data never leaves the TEE." },
             ].map((f) => (
-              <div key={f.title} className="group flex items-start gap-4 bg-[#0d0f14]/80 border border-border/40 rounded-2xl p-5 hover:border-primary/30 transition-colors backdrop-blur-sm">
-                <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary flex-shrink-0"><f.icon size={18} /></div>
-                <div className="space-y-1">
+              <Link key={f.title} href={f.href} className="group relative flex items-start gap-4 bg-[#0d0f14]/70 border border-border/40 rounded-2xl p-5 hover:border-primary/40 hover:bg-[#0d0f14] transition-all backdrop-blur-sm overflow-hidden">
+                <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-primary flex-shrink-0 group-hover:scale-105 transition-transform"><f.icon size={20} /></div>
+                <div className="space-y-1 flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-bold text-foreground">{f.title}</h3>
-                    <span className="text-[8px] text-primary/60 uppercase tracking-widest border border-primary/20 rounded px-1.5 py-0.5">{f.tag}</span>
+                    <span className="text-[8px] text-primary/70 uppercase tracking-widest border border-primary/20 rounded px-1.5 py-0.5">{f.tag}</span>
                   </div>
                   <p className="text-[11px] text-foreground/45 leading-relaxed">{f.desc}</p>
                 </div>
-              </div>
+                <ArrowUpRight size={14} className="text-foreground/20 group-hover:text-primary transition-colors flex-shrink-0 mt-1" />
+              </Link>
             ))}
           </div>
         </div>
@@ -153,7 +158,7 @@ export default function Page() {
         <div className="space-y-12 pb-16">
           <div className="text-center space-y-2">
             <span className="text-[10px] tracking-[0.4em] text-primary/60 uppercase">XORR // WORKFLOW</span>
-            <h2 className="text-3xl md:text-4xl tracking-tighter font-black uppercase italic">How_It_Works</h2>
+            <h2 className="text-3xl md:text-4xl tracking-tighter font-black uppercase">How It Works</h2>
             <p className="text-xs text-foreground/40 max-w-md mx-auto">Three simple steps to unlock private decentralized consumer credit on Sui.</p>
           </div>
 
@@ -202,7 +207,7 @@ export default function Page() {
         <div className="space-y-12 pb-24 border-t border-border/20 pt-16">
           <div className="text-center space-y-2">
             <span className="text-[10px] tracking-[0.4em] text-primary/60 uppercase">XORR // FAQ</span>
-            <h2 className="text-3xl md:text-4xl tracking-tighter font-black uppercase italic">Frequently_Asked_Questions</h2>
+            <h2 className="text-3xl md:text-4xl tracking-tighter font-black uppercase">Frequently Asked Questions</h2>
             <p className="text-xs text-foreground/40 max-w-md mx-auto">Get answers to the most common questions about the XORR protocol.</p>
           </div>
 

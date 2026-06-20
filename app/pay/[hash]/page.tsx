@@ -14,6 +14,7 @@ import {
   USDT_COIN_TYPE, openProfileTx, openPurchaseTx, readCreditProfile, type CreditProfileView,
 } from "@/lib/bnpl"
 import { USDT_PACKAGE_ID, USDT_DECIMALS, SUI_NETWORK, suiscanTxUrl } from "@/lib/sui"
+import { buyNowUnsecuredTx } from "@/lib/market"
 
 const SETTLE_ADDRESS = process.env.NEXT_PUBLIC_XORR_MERCHANT_ADDRESS ?? ""
 const LS_PROFILE = "xorr_bnpl_profile"
@@ -106,19 +107,19 @@ export default function PayPage() {
     } catch { /* toast */ } finally { setBusy(null) }
   }
 
-  // BNPL: lock collateral, the pool fronts the merchant, you owe a loan.
+  // True BNPL: borrow UNSECURED against your TEE credit (no collateral); the pool
+  // pays the merchant and you owe the loan. Repay anytime on /credit.
   const onPayBNPL = async () => {
-    if (!account || !primaryCoin || !profileId || billAmount <= 0) return
+    if (!account || !profileId || !escrowId || billAmount <= 0) return
     setBusy("bnpl")
     try {
-      const res = await runTx(`Buy now, pay never · ${billAmount} USDC`, openPurchaseTx({
-        profileId, primaryCoinId: primaryCoin, amountUsdt: billAmount, collateralUsdt: billAmount,
-        escrowId: escrowId, orderId: hash,
+      const res = await runTx(`Buy now, pay never · ${billAmount} USDC`, buyNowUnsecuredTx({
+        profileId, escrowId, amountUsdt: billAmount, orderId: hash,
       }))
-      const loanId = findCreated(res, "::bnpl::Loan<")
-      if (loanId) {
+      const posId = findCreated(res, "::market::UnsecuredPosition")
+      if (posId) {
         const loans = JSON.parse(localStorage.getItem(LS_LOANS) || "[]")
-        loans.push({ id: loanId, n: 1, perAmount: 0, startMs: Date.now(), paid: 0 })
+        loans.push({ id: posId, kind: "unsecured", n: 1, perAmount: 0, startMs: Date.now(), paid: 0 })
         localStorage.setItem(LS_LOANS, JSON.stringify(loans))
       }
       setSuccess({ mode: "bnpl", digest: res.digest })
@@ -164,7 +165,7 @@ export default function PayPage() {
         <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center"><CheckCircle2 className="w-10 h-10 text-primary" /></div>
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-black uppercase tracking-tighter">{success.mode === "bnpl" ? "Bought_On_Credit" : "Payment_Settled"}</h1>
-          <p className="text-[10px] text-white/40 uppercase">{success.mode === "bnpl" ? "Merchant paid from the pool · repay anytime on /bnpl" : "Settled in USDC on Sui"} {SUI_NETWORK}.</p>
+          <p className="text-[10px] text-white/40 uppercase">{success.mode === "bnpl" ? "Merchant paid from the pool · repay anytime on /credit" : "Settled in USDC on Sui"} {SUI_NETWORK}.</p>
         </div>
         <div className="w-full bg-white/5 border border-white/10 p-4 rounded flex flex-col gap-3">
           <div className="flex justify-between items-center text-[10px] uppercase font-bold"><span className="text-white/40">Merchant</span><span className="text-white font-black">{bill.merchant?.name || "Merchant"}</span></div>
@@ -173,7 +174,7 @@ export default function PayPage() {
         <div className="flex flex-col w-full gap-2">
           <a href={suiscanTxUrl(success.digest)} target="_blank" rel="noopener noreferrer" className="w-full bg-primary py-3 rounded text-[10px] font-black uppercase text-black hover:opacity-90 text-center">View on Suiscan</a>
           {success.mode === "bnpl"
-            ? <Link href="/bnpl" className="w-full bg-white/5 border border-white/10 py-3 rounded text-[10px] font-black uppercase text-white hover:bg-white/10 text-center">Manage / Repay Loan</Link>
+            ? <Link href="/credit" className="w-full bg-white/5 border border-white/10 py-3 rounded text-[10px] font-black uppercase text-white hover:bg-white/10 text-center">Manage / Repay Loan</Link>
             : <Link href="/positions" className="w-full bg-white/5 border border-white/10 py-3 rounded text-[10px] font-black uppercase text-white hover:bg-white/10 text-center">View Positions</Link>}
         </div>
       </div>
@@ -182,7 +183,8 @@ export default function PayPage() {
 
   const alreadyPaid = bill.status === "paid"
   const escrowOk = settleViaEscrow || recipientValid
-  const canBNPL = !!account && !!primaryCoin && !!profileId && billAmount > 0 && usdc >= billAmount && available >= billAmount && !!escrowId && !busy && !alreadyPaid
+  const score = profile?.score ?? 0
+  const canBNPL = !!account && !!profileId && billAmount > 0 && available >= billAmount && score >= 600 && !!escrowId && !busy && !alreadyPaid
   const canDirect = !!account && !!primaryCoin && escrowOk && configured && billAmount > 0 && usdc >= billAmount && !busy && !alreadyPaid
 
   return (
@@ -223,8 +225,8 @@ export default function PayPage() {
 
           {!account && <Warn icon={<Wallet size={14} />}>Connect your Sui wallet to check out.</Warn>}
           {account && !profileId && <Warn icon={<CreditCard size={14} />}>Open a credit profile to buy now, pay never.</Warn>}
-          {account && profileId && profile && available < billAmount && <Warn icon={<AlertCircle size={14} />}>Credit available ({available}) is below {billAmount} USDC. Raise it with a <Link href="/credit" className="underline">TEE score</Link>, or pay in full.</Warn>}
-          {account && usdc < billAmount && <Warn icon={<AlertCircle size={14} />}>Need ≥ {billAmount} USDC (collateral / settlement) — get it from the <Link href="/faucet" className="underline">faucet</Link>.</Warn>}
+          {account && profileId && profile && score < 600 && <Warn icon={<AlertCircle size={14} />}>TEE score {score} — need ≥ 600 for collateral-free BNPL. <Link href="/credit" className="underline">Refresh your TEE score</Link>, or pay in full.</Warn>}
+          {account && profileId && profile && score >= 600 && available < billAmount && <Warn icon={<AlertCircle size={14} />}>Credit available ({available}) is below {billAmount} USDC. Raise your limit with a higher <Link href="/credit" className="underline">TEE score</Link>, or pay in full.</Warn>}
           {account && !escrowId && <Warn icon={<AlertCircle size={14} />}>This merchant hasn&apos;t deployed an escrow yet — BNPL needs one. You can still pay in full.</Warn>}
 
           {/* Actions */}
@@ -244,7 +246,7 @@ export default function PayPage() {
             </button>
 
             <p className="text-[8px] text-center text-white/25 uppercase font-bold tracking-[0.1em] leading-relaxed">
-              Buy Now, Pay Never locks {billAmount} USDC as collateral; the pool pays the merchant, and your collateral earns yield that repays the loan. Repay anytime on /bnpl.
+              Buy Now, Pay Never borrows against your unsecured TEE credit line — no collateral. The pool pays the merchant and you owe the loan. Repay anytime on /credit.
             </p>
           </div>
         </div>

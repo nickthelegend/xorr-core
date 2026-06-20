@@ -81,3 +81,22 @@ export function repayUncollateralizedTx(positionId: string, profileId: string, p
   tx.transferObjects([refund], sender);
   return tx;
 }
+
+/** True Buy-Now-Pay-Never: borrow UNSECURED against the TEE credit line (score
+ * >= 600, no collateral) and settle the merchant escrow with the borrowed funds
+ * in one PTB. The buyer puts up nothing — the pool fronts the merchant — and
+ * owes the resulting UnsecuredPosition. Repay anytime via repay_uncollateralized. */
+export function buyNowUnsecuredTx(p: { profileId: string; escrowId: string; amountUsdt: number; termEpochs?: number; orderId?: string }): Transaction {
+  const tx = new Transaction();
+  const borrowed = tx.moveCall({
+    target: `${PKG}::market::borrow_uncollateralized`,
+    typeArguments: [T],
+    arguments: [tx.object(BNPL_POOL_ID), tx.object(p.profileId), tx.pure.u64(u64(p.amountUsdt)), tx.pure.u64(BigInt(p.termEpochs ?? 30))],
+  });
+  tx.moveCall({
+    target: `${PKG}::merchant_escrow::settle_payment`,
+    typeArguments: [T],
+    arguments: [tx.object(p.escrowId), borrowed, tx.pure.vector("u8", Array.from(new TextEncoder().encode(p.orderId ?? "xorr-bnpl")))],
+  });
+  return tx;
+}

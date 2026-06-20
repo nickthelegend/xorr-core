@@ -16,7 +16,7 @@ const LS_PROFILE = "xorr_bnpl_profile";
 const LS_LOANS = "xorr_bnpl_loans";
 
 // A loan we opened, plus its (optional) EMI plan. n=1 => pay-in-full.
-type LoanRec = { id: string; n: number; perAmount: number; startMs: number; paid: number };
+type LoanRec = { id: string; n: number; perAmount: number; startMs: number; paid: number; kind?: string };
 
 const fmt = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 2 });
 
@@ -193,11 +193,11 @@ export default function BnplPage() {
         )}
       </div>
 
-      {/* Active loans */}
-      {loans.length > 0 && (
+      {/* Active loans (over-collateralized BNPL only; unsecured ones live on /credit) */}
+      {loans.some((l) => l.kind !== "unsecured") && (
         <div className="flex flex-col gap-4">
           <span className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Active_Loans</span>
-          {loans.map((l) => {
+          {loans.filter((l) => l.kind !== "unsecured").map((l) => {
             const lv = views[l.id];
             const repaid = lv ? lv.status === 1 || lv.outstanding <= 0.0001 : false;
             const ri = repayInput[l.id] ?? "";

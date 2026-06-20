@@ -7,13 +7,16 @@ import {
 } from "lucide-react"
 import { useCurrentAccount, useSuiClient } from "@mysten/dapp-kit"
 import { toast } from "sonner"
-import { readCreditProfile, openProfileTx, applyTeeScoreTx, type CreditProfileView } from "@/lib/bnpl"
-import { readPositions, type OnChainPosition } from "@/lib/positions"
+import { readCreditProfile, openProfileTx, applyTeeScoreTx, readLoan, repayTx, USDT_COIN_TYPE, type CreditProfileView, type LoanView } from "@/lib/bnpl"
+import { repayUncollateralizedTx } from "@/lib/market"
 import { SUI_NETWORK } from "@/lib/sui"
 import { useTx, findCreated } from "@/lib/use-tx"
 
 const LS_PROFILE = "xorr_bnpl_profile"
+const LS_LOANS = "xorr_bnpl_loans"
 const MIN_SCORE = 600
+
+type CreditLine = { id: string; kind: string; view: LoanView }
 
 export default function CreditPage() {
   const account = useCurrentAccount()
@@ -22,9 +25,11 @@ export default function CreditPage() {
 
   const [profile, setProfile] = useState<CreditProfileView | null>(null)
   const [profileId, setProfileId] = useState<string | null>(null)
-  const [loans, setLoans] = useState<OnChainPosition[]>([])
+  const [lines, setLines] = useState<CreditLine[]>([])
+  const [primaryCoin, setPrimaryCoin] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [working, setWorking] = useState(false)
+  const [repaying, setRepaying] = useState<string | null>(null)
 
   const refresh = useCallback(async () => {
     if (!account) return
@@ -32,18 +37,40 @@ export default function CreditPage() {
     try {
       const id = typeof window !== "undefined" ? localStorage.getItem(LS_PROFILE) : null
       setProfileId(id)
-      const [prof, pos] = await Promise.all([
+      const [prof, coins] = await Promise.all([
         id ? readCreditProfile(client, id).catch(() => null) : Promise.resolve(null),
-        readPositions(client, account.address),
+        client.getCoins({ owner: account.address, coinType: USDT_COIN_TYPE }).catch(() => ({ data: [] })),
       ])
       setProfile(prof)
-      setLoans(pos.filter((p) => p.kind === "bnpl" || p.kind === "unsecured"))
+      let best: string | null = null, bestBal = BigInt(0)
+      for (const c of coins.data) { const b = BigInt(c.balance); if (b > bestBal) { bestBal = b; best = c.coinObjectId } }
+      setPrimaryCoin(best)
+      // BNPL loans are SHARED objects — read by the ids we tracked at checkout.
+      const stored: { id: string; kind?: string }[] = JSON.parse(localStorage.getItem(LS_LOANS) || "[]")
+      const views = await Promise.all(stored.map(async (l) => {
+        const v = await readLoan(client, l.id).catch(() => null)
+        return v ? { id: l.id, kind: l.kind || "bnpl", view: v } : null
+      }))
+      setLines(views.filter((c): c is CreditLine => !!c && c.view.status === 0 && c.view.outstanding > 0))
     } finally {
       setLoading(false)
     }
   }, [account, client])
 
   useEffect(() => { refresh() }, [refresh])
+
+  const onRepay = async (line: CreditLine) => {
+    if (!account || !profileId || !primaryCoin) return
+    const amt = line.view.outstanding
+    setRepaying(line.id)
+    try {
+      const tx = line.kind === "unsecured"
+        ? repayUncollateralizedTx(line.id, profileId, primaryCoin, amt, account.address)
+        : repayTx({ loanId: line.id, profileId, primaryCoinId: primaryCoin, amountUsdt: amt, sender: account.address })
+      await runTx(`Repay ${amt} USDC`, tx)
+      await refresh()
+    } catch { /* toast shown */ } finally { setRepaying(null) }
+  }
 
   // Open (share) a CreditProfile for the connected wallet, then remember its id.
   const openProfile = async () => {
@@ -185,22 +212,28 @@ export default function CreditPage() {
       <div className="glass-card rounded-lg border border-white/10 overflow-hidden">
         <div className="bg-white/5 px-5 py-2.5 border-b border-white/10 flex justify-between items-center">
           <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Open_Credit_Lines</span>
-          <span className="text-[9px] text-primary/50 font-bold">{loans.length} active</span>
+          <span className="text-[9px] text-primary/50 font-bold">{lines.length} active</span>
         </div>
-        {loans.length === 0 ? (
+        {lines.length === 0 ? (
           <div className="p-8 text-center"><p className="text-[10px] text-white/20 uppercase tracking-widest">No active credit lines</p></div>
         ) : (
           <div className="divide-y divide-white/5">
-            {loans.map((l) => (
+            {lines.map((l) => (
               <div key={l.id} className="px-5 py-4 flex items-center justify-between hover:bg-white/[0.02] transition-colors">
                 <div className="flex items-center gap-3">
-                  {l.kind === "bnpl" ? <CreditCard size={14} className="text-primary/70" /> : <ShieldCheck size={14} className="text-primary/70" />}
-                  <span className="text-xs text-white font-bold">{l.label}</span>
+                  {l.kind === "unsecured" ? <ShieldCheck size={14} className="text-purple-400/80" /> : <CreditCard size={14} className="text-primary/70" />}
+                  <div className="flex flex-col">
+                    <span className="text-xs text-white font-bold">{l.kind === "unsecured" ? "BNPL · Unsecured (TEE)" : "BNPL Loan"}</span>
+                    <a href={`https://suiscan.xyz/${SUI_NETWORK}/object/${l.id}`} target="_blank" rel="noopener noreferrer"
+                      className="text-[9px] text-primary/50 hover:text-primary font-mono">{l.id.slice(0, 10)}… ↗</a>
+                  </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-xs text-white tabular-nums">{l.amount.toLocaleString()} USDC</span>
-                  <a href={`https://suiscan.xyz/${SUI_NETWORK}/object/${l.id}`} target="_blank" rel="noopener noreferrer"
-                    className="text-[10px] text-primary/60 hover:text-primary underline">view</a>
+                  <span className="text-xs text-white tabular-nums">{l.view.outstanding.toLocaleString()} USDC</span>
+                  <button onClick={() => onRepay(l)} disabled={!!repaying || !primaryCoin}
+                    className="px-4 h-9 rounded-lg bg-primary/10 border border-primary/30 text-primary text-[10px] font-black uppercase tracking-widest hover:bg-primary/20 disabled:opacity-40 flex items-center gap-1.5">
+                    {repaying === l.id ? <Loader2 size={12} className="animate-spin" /> : null} Repay
+                  </button>
                 </div>
               </div>
             ))}
@@ -220,7 +253,7 @@ export default function CreditPage() {
           </div>
           <ArrowUpRight className="text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" size={18} />
         </Link>
-        <Link href="/lend-borrow" className="bg-white/5 border border-border/40 rounded-3xl p-6 flex items-center justify-between hover:border-primary/40 transition-colors group">
+        <Link href="/borrow" className="bg-white/5 border border-border/40 rounded-3xl p-6 flex items-center justify-between hover:border-primary/40 transition-colors group">
           <div className="flex items-center gap-4">
             <TrendingUp className="text-primary" size={22} />
             <div>

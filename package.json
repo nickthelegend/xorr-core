@@ -24,6 +24,7 @@
     "@minswap/aggregator-widget": "^1.0.13",
     "@morpho-org/blue-api-sdk": "^2.17.3",
     "@mysten/dapp-kit": "^1.1.1",
+    "@mysten/seal": "^1.2.1",
     "@mysten/sui": "^2.19.0",
     "@privy-io/react-auth": "^3.18.0",
     "@radix-ui/react-accordion": "1.2.2",
